@@ -200,18 +200,55 @@ def trendforce():
 
 
 # ---------------------------------------------------------------- stocks
-def yahoo(sym, years=5):
-    p1 = int(time.time()) - years * 366 * 86400
-    r = http(f"https://query2.finance.yahoo.com/v8/finance/chart/{requests.utils.quote(sym)}"
-             f"?period1={p1}&period2={int(time.time())}&interval=1d&events=history")
+def _yahoo_chart(host, sym, query):
+    r = http(f"https://{host}.finance.yahoo.com/v8/finance/chart/{requests.utils.quote(sym)}?{query}")
     res = r.json()["chart"]["result"][0]
     off = res.get("meta", {}).get("gmtoffset", 0) or 0
     ts = res.get("timestamp") or []
-    cl = res["indicators"]["quote"][0]["close"]
+    q = res["indicators"]["quote"][0]
+    adj = (res["indicators"].get("adjclose") or [{}])[0].get("adjclose") or []
     out = {}
-    for t, c in zip(ts, cl):
+    for i, t in enumerate(ts):
+        c = q["close"][i] if i < len(q["close"]) else None
+        if c is None and i < len(adj):
+            c = adj[i]
         if c is not None:
             out[dt.datetime.utcfromtimestamp(t + off).date().isoformat()] = round(c, 4)
+    m = res.get("meta", {})
+    if m.get("regularMarketPrice") and m.get("regularMarketTime"):
+        out.setdefault(dt.datetime.utcfromtimestamp(m["regularMarketTime"] + off).date().isoformat(),
+                       round(m["regularMarketPrice"], 4))
+    return out
+
+
+def stooq(sym):
+    """Fallback for US tickers: stooq daily CSV (split-adjusted)."""
+    r = http(f"https://stooq.com/q/d/l/?s={sym.lower()}.us&i=d")
+    out = {}
+    for line in r.text.strip().splitlines()[1:]:
+        p = line.split(",")
+        if len(p) >= 5 and p[4] not in ("", "N/D"):
+            out[p[0]] = round(float(p[4]), 4)
+    return out
+
+
+def yahoo(sym, years=5):
+    """Daily closes, split-adjusted. If the long history stops early (e.g. after a stock split
+    Yahoo sometimes returns null closes), patch the tail from a short-range query and stooq."""
+    p1 = int(time.time()) - years * 366 * 86400
+    out = _yahoo_chart("query2", sym, f"period1={p1}&period2={int(time.time())}&interval=1d&events=history")
+    stale = lambda d: not d or (NOW.date() - dt.date.fromisoformat(max(d))).days > 4  # noqa
+    if stale(out):
+        for fn in (lambda: _yahoo_chart("query1", sym, "range=3mo&interval=1d"),
+                   lambda: stooq(sym) if "." not in sym and not sym.startswith("^") else {}):
+            try:
+                extra = fn()
+                last = max(out) if out else ""
+                out.update({k: v for k, v in extra.items() if k > last})
+            except Exception as e:  # noqa
+                print("fallback failed", sym, e)
+            if not stale(out):
+                break
     return sorted(out.items())
 
 
