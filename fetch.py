@@ -237,17 +237,23 @@ def yahoo(sym, years=5):
     Yahoo sometimes returns null closes), patch the tail from a short-range query and stooq."""
     p1 = int(time.time()) - years * 366 * 86400
     out = _yahoo_chart("query2", sym, f"period1={p1}&period2={int(time.time())}&interval=1d&events=history")
-    stale = lambda d: not d or (NOW.date() - dt.date.fromisoformat(max(d))).days > 4  # noqa
-    if stale(out):
-        for fn in (lambda: _yahoo_chart("query1", sym, "range=3mo&interval=1d"),
-                   lambda: stooq(sym) if "." not in sym and not sym.startswith("^") else {}):
+    def gap(d):  # stale tail, or a hole of >4 days in the last 30 days
+        ks = sorted(d)[-25:]
+        if not ks or (NOW.date() - dt.date.fromisoformat(ks[-1])).days > 4:
+            return True
+        return any((dt.date.fromisoformat(b) - dt.date.fromisoformat(a)).days > 4 for a, b in zip(ks, ks[1:]))
+    if gap(out):
+        us = "." not in sym and not sym.startswith("^")
+        for name, fn in (("yahoo-3mo", lambda: _yahoo_chart("query1", sym, "range=3mo&interval=1d")),
+                         ("stooq", lambda: stooq(sym) if us else {})):
             try:
                 extra = fn()
-                last = max(out) if out else ""
-                out.update({k: v for k, v in extra.items() if k > last})
+                add = {k: v for k, v in extra.items() if k not in out}
+                out.update(add)
+                print(f"fallback {name} {sym}: +{len(add)} rows")
             except Exception as e:  # noqa
-                print("fallback failed", sym, e)
-            if not stale(out):
+                print(f"fallback {name} {sym} failed: {e}")
+            if not gap(out):
                 break
     return sorted(out.items())
 
