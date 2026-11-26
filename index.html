@@ -6,7 +6,8 @@
 <title>MEMORY PRICE CHECK</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
 <style>
-:root{--bg:#0f1420;--card:#171e2d;--card2:#1d2638;--line:#2f3a51;--tx:#eef2f8;--sub:#a3aec4;--acc:#f58220;--up:#ff6161;--dn:#5b97ff;--btn:#232d42;--btnh:#2c3854;--ok:#3ccf8e;--warn:#ffbf66}
+:root{--bg:#f4f6fa;--card:#ffffff;--card2:#f7f9fc;--line:#e2e7ef;--tx:#18202e;--sub:#5d6880;--acc:#e8720c;--up:#d92d2d;--dn:#1d5fe0;--btn:#ffffff;--btnh:#fff4ea;--ok:#12865a;--warn:#a86207;--bd:#cfd6e2;--sh:#e3e8f0}
+html{color-scheme:light}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",Pretendard,sans-serif;font-size:16px;line-height:1.5}
@@ -21,10 +22,10 @@ main{padding:16px 24px;max-width:1500px;margin:auto}
 .card .hint{color:var(--sub);font-size:14.5px;margin:0 0 12px;word-break:keep-all}
 .lbl{color:var(--sub);font-size:14.5px;font-weight:600;margin:14px 0 8px}
 .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
-.guide{display:flex;flex-wrap:wrap;gap:10px 22px;background:var(--card2);border:1px dashed #44516d;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:15.5px}
+.guide{display:flex;flex-wrap:wrap;gap:10px 22px;background:var(--card2);border:1px dashed var(--bd);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:15.5px}
 .guide b{color:var(--acc)}
 .guide .st{display:flex;gap:8px;align-items:flex-start;flex:1 1 260px;word-break:keep-all}
-.guide .no{flex:0 0 26px;height:26px;border-radius:50%;background:var(--acc);color:#111;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+.guide .no{flex:0 0 26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
 
 /* KPI tiles */
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
@@ -36,38 +37,45 @@ main{padding:16px 24px;max-width:1500px;margin:auto}
 .tile .d{font-size:14px;font-variant-numeric:tabular-nums}
 .tile .m{font-size:12.5px;color:var(--sub);margin-top:4px}
 .tile.na .v{color:var(--sub);font-size:18px}
-.tile.key{border-color:#7a5a2e;background:#231d16}
-.star{display:inline-block;font-size:12px;font-weight:800;color:#141414;background:var(--acc);border-radius:6px;padding:1px 7px;margin-bottom:4px}
+.tile.key{border-color:#f2b07a;background:#fff8f1}
+.star{display:inline-block;font-size:12px;font-weight:800;color:#fff;background:var(--acc);border-radius:6px;padding:1px 7px;margin-bottom:4px}
 details.terms{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 18px;margin-bottom:16px}
 details.terms summary{cursor:pointer;font-size:17px;font-weight:800}
 details.terms .tw{overflow-x:auto;margin-top:10px}
+details.grp{border-bottom:1px solid var(--line);padding:6px 0}
+details.grp summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;padding:4px 0}
+details.grp summary::-webkit-details-marker{display:none}
+details.grp summary:before{content:'▸';color:var(--acc);font-weight:900;width:12px}
+details.grp[open] summary:before{content:'▾'}
+details.grp .cnt{font-size:12.5px;color:var(--sub);font-weight:600}
+.zbtn{display:flex;gap:6px}
 .gdesc{color:var(--sub);font-size:13.5px;margin:-2px 0 6px;word-break:keep-all}
 
 /* signals */
 .sig{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);word-break:keep-all}
 .sig:last-child{border-bottom:0}
 .dot{flex:0 0 14px;height:14px;border-radius:50%;margin-top:5px}
-.dot.r{background:var(--up)}.dot.b{background:var(--dn)}.dot.y{background:var(--warn)}.dot.g{background:#6b7894}
+.dot.r{background:var(--up)}.dot.b{background:var(--dn)}.dot.y{background:var(--warn)}.dot.g{background:#a7b0c0}
 .sig .t{font-weight:700}
 .sig .x{color:var(--sub);font-size:14px}
 
 /* buttons */
 button{font:inherit;color:var(--tx);cursor:pointer}
-.btn{background:var(--btn);border:1.5px solid #3f4c68;border-radius:9px;padding:8px 14px;font-size:15px;font-weight:600;box-shadow:0 2px 0 #0a0e17}
+.btn{background:var(--btn);border:1.5px solid var(--bd);border-radius:9px;padding:8px 14px;font-size:15px;font-weight:600;box-shadow:0 2px 0 var(--sh)}
 .btn:hover{background:var(--btnh);border-color:var(--acc)}
-.tg{display:inline-flex;align-items:center;gap:7px;background:var(--btn);border:1.5px solid #3f4c68;border-radius:999px;padding:6px 13px 6px 10px;font-size:14.5px;box-shadow:0 2px 0 #0a0e17}
+.tg{display:inline-flex;align-items:center;gap:7px;background:var(--btn);border:1.5px solid var(--bd);border-radius:999px;padding:6px 13px 6px 10px;font-size:14.5px;box-shadow:0 2px 0 var(--sh)}
 .tg:hover{border-color:var(--acc);background:var(--btnh)}
-.tg .mk{width:18px;height:18px;border-radius:50%;border:2px solid #6b7894;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex:0 0 18px}
-.tg.on{background:#2a2014;border-color:var(--c,var(--acc));font-weight:700}
-.tg.on .mk{background:var(--c,var(--acc));border-color:var(--c,var(--acc));color:#111}
+.tg .mk{width:18px;height:18px;border-radius:50%;border:2px solid #a7b0c0;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex:0 0 18px}
+.tg.on{background:#fff1e3;border-color:var(--c,var(--acc));font-weight:700}
+.tg.on .mk{background:var(--c,var(--acc));border-color:var(--c,var(--acc));color:#fff}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .grp{margin-bottom:10px}
 .grp .gl{font-size:13.5px;color:var(--acc);font-weight:800;margin:6px 0}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg label{cursor:pointer}
 .seg input{position:absolute;opacity:0;pointer-events:none}
-.seg span{display:inline-block;background:var(--btn);border:1.5px solid #3f4c68;border-radius:9px;padding:7px 13px;font-size:15px;box-shadow:0 2px 0 #0a0e17}
-.seg input:checked+span{background:var(--acc);border-color:var(--acc);color:#141414;font-weight:800}
+.seg span{display:inline-block;background:var(--btn);border:1.5px solid var(--bd);border-radius:9px;padding:7px 13px;font-size:15px;box-shadow:0 2px 0 var(--sh)}
+.seg input:checked+span{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:800}
 .seg input:focus-visible+span{outline:2px solid #fff}
 .ctrl{display:flex;flex-wrap:wrap;gap:4px 26px;align-items:flex-end}
 #chart{width:100%;height:520px}
@@ -91,6 +99,10 @@ button{font:inherit;color:var(--tx);cursor:pointer}
 footer{color:var(--sub);font-size:14px;padding:10px 24px 34px;max-width:1500px;margin:auto;line-height:1.75;word-break:keep-all}
 @media(max-width:980px){.grid2{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:640px){
+  .tg{font-size:13.5px;padding:6px 11px 6px 9px}
+  .seg span{padding:7px 10px;font-size:14px}
+  .ctrl{gap:2px 14px}
+  details.terms{padding:10px 12px}
   header{padding:16px 14px 12px}
   h1{font-size:25px}
   main{padding:12px 10px}
@@ -161,11 +173,12 @@ footer{color:var(--sub);font-size:14px;padding:10px 24px 34px;max-width:1500px;m
     <div class="ctrl">
       <div><div class="lbl">기간</div><div class="seg" id="periods"></div></div>
       <div><div class="lbl">보기 방식</div><div class="seg" id="modes"></div></div>
+      <div><div class="lbl">기간 늘리기·줄이기</div><div class="zbtn"><button class="btn" id="zin" title="최근 쪽으로 좁히기">＋ 확대</button><button class="btn" id="zout" title="과거 쪽으로 넓히기">－ 축소</button></div></div>
       <div><div class="lbl">&nbsp;</div><button class="btn" id="clr">🗑 선택 지우기</button> <button class="btn" id="csv">⬇ CSV</button></div>
     </div>
     <div id="msg" class="warn"></div>
     <div id="chart"></div>
-    <div class="tip">💡 차트 위에서 <b>마우스 휠</b>을 돌리면 <b>오른쪽 끝(최신일)은 고정</b>된 채 기간이 늘고 줄어듭니다(아래로=길게, 위로=짧게). 차트를 끌면 좌우로 이동하고, 기간 버튼을 누르면 원래대로 돌아갑니다.<br>📅 과거 데이터: D램 칩 현물은 2026-08-14부터, 중국 1Tb NAND는 2026-05-18부터 있습니다(memorypricechart.com 공개 데이터). 그 외 품목은 이 사이트 수집 시작일(2026-11-25)부터 쌓입니다. 2026-11-17~24는 원천 데이터가 없어 비어 있습니다.</div>
+    <div class="tip">💡 <b>오른쪽 끝(최신일)은 고정</b>된 채 기간을 늘리고 줄입니다. PC: 차트 위에서 마우스 휠(아래로=길게, 위로=짧게), 끌면 좌우 이동. 휴대폰: 두 손가락으로 벌리기·오므리기, 또는 <b>＋ 확대 / － 축소</b> 버튼. 아래 막대의 손잡이를 끌어도 됩니다.<br>📅 과거 데이터: D램 칩 현물은 2026-08-14부터, 중국 1Tb NAND는 2026-05-18부터 있습니다(memorypricechart.com 공개 데이터). 그 외 품목은 이 사이트 수집 시작일(2026-11-25)부터 쌓입니다. 2026-11-17~24는 원천 데이터가 없어 비어 있습니다.</div>
   </div>
 
     <div class="card">
@@ -189,9 +202,9 @@ footer{color:var(--sub);font-size:14px;padding:10px 24px 34px;max-width:1500px;m
 
 <script>
 const $=id=>document.getElementById(id);
-const COLORS=['#f58220','#5b97ff','#3ccf8e','#ff6161','#c18cff','#ffd34d','#35d0e0','#ff8fc7','#9bd65b','#e0a96d','#8fa3ff','#ff9e5e'];
+const COLORS=['#e8720c','#1d5fe0','#16a34a','#d92d2d','#7c3aed','#0891b2','#db2777','#65a30d','#a16207','#4f46e5','#8fa3ff','#ff9e5e'];
 const PERIODS=[["1M","1개월",30],["3M","3개월",91],["6M","6개월",182],["1Y","1년",365],["MAX","전체",-1]];
-const MODES=[["raw","원래 값"],["idx","지수화 (시작=100)"]];
+const MODES=[["auto","자동"],["raw","원래 값"],["idx","지수화 (시작=100)"]];
 // key tiles: [item id, short label, unit]
 const TILES=[
  ["dram_spot_ddr4_8gb_1gx8_3200","DDR4 8Gb 칩","칩·매일","★ 대표 D램 현물가"],
@@ -227,7 +240,7 @@ function itemDesc(id){if(id.startsWith('stk:'))return STK_DESC;const it=P.items[
   if(/TLC/.test(n))x.push('TLC(Triple Level Cell): 셀당 3비트 저장, 현재 주력.');if(/QLC/.test(n))x.push('QLC(Quad Level Cell): 셀당 4비트, 더 싸고 느림.');if(/MLC/.test(n))x.push('MLC(Multi Level Cell): 셀당 2비트.');if(/SLC/.test(n))x.push('SLC(Single Level Cell): 셀당 1비트, 내구성 높음.');
   if(/SO-DIMM/.test(n))x.push('SO-DIMM: 노트북용 램 모듈.');
   return [SEC_DESC[it.sec]||'',...x].join(' ')}
-let period="MAX",mode="raw";
+let period="3M",mode="auto";
 
 const fmt=(v,d)=>v==null||isNaN(v)?'–':Number(v).toLocaleString('en-US',{minimumFractionDigits:d??2,maximumFractionDigits:d??3});
 const pct=v=>v==null||isNaN(v)?'<span class="mu">–</span>':`<span class="${v>0?'up':v<0?'dn':'mu'}">${v>0?'▲ +':v<0?'▼ ':''}${v.toFixed(2)}%</span>`;
@@ -278,8 +291,9 @@ function renderPick(){
   const groups={},gsec={};for(const [id,it] of Object.entries(P.items)){(groups[it.grp]=groups[it.grp]||[]).push([id,it.name]);gsec[it.grp]=it.sec}
   const stk=Object.entries(S.items).map(([k,it])=>['stk:'+k,it.name]);if(stk.length)groups['메모리 주가']=stk;
   let ci=0;const col={};sel.forEach(id=>col[id]=COLORS[(ci++)%COLORS.length]);
-  $('pick').innerHTML=Object.entries(groups).map(([g,arr])=>`<div class="grp"><div class="gl">${esc(g)}</div><div class="gdesc">${esc(SEC_DESC[gsec[g]]||(g==='메모리 주가'?STK_DESC:''))}</div><div class="chips">${arr.map(([id,nm])=>`<button class="tg ${sel.includes(id)?'on':''}" style="--c:${col[id]||''}" data-id="${id}" title="${esc(itemDesc(id))}"><span class="mk">${sel.includes(id)?'✓':''}</span>${esc(nm)}</button>`).join('')}</div></div>`).join('')||'<div class="mu">수집된 품목이 아직 없습니다.</div>';
-  document.querySelectorAll('#pick .tg').forEach(b=>b.onclick=()=>{const id=b.dataset.id;sel=sel.includes(id)?sel.filter(x=>x!==id):[...sel,id];renderPick();draw()});
+  const OPEN=new Set(['DRAM 현물(칩)','메모리 주가']);
+  $('pick').innerHTML=Object.entries(groups).map(([g,arr])=>{const n=arr.filter(([id])=>sel.includes(id)).length;return `<details class="grp" ${OPEN.has(g)||n?'open':''}><summary><span class="gl" style="margin:0">${esc(g)}</span><span class="cnt">${arr.length}개${n?` · ${n}개 선택`:''}</span></summary><div class="gdesc">${esc(SEC_DESC[gsec[g]]||(g==='메모리 주가'?STK_DESC:''))}</div><div class="chips">${arr.map(([id,nm])=>`<button class="tg ${sel.includes(id)?'on':''}" style="--c:${col[id]||''}" data-id="${id}" title="${esc(itemDesc(id))}"><span class="mk">${sel.includes(id)?'✓':''}</span>${esc(nm)}</button>`).join('')}</div></details>`}).join('')||'<div class="mu">수집된 품목이 아직 없습니다.</div>';
+  document.querySelectorAll('#pick .tg').forEach(b=>b.onclick=()=>{const id=b.dataset.id;const open=[...document.querySelectorAll('#pick details[open] .gl')].map(x=>x.textContent);sel=sel.includes(id)?sel.filter(x=>x!==id):[...sel,id];renderPick();document.querySelectorAll('#pick details').forEach(d=>{if(open.includes(d.querySelector('.gl').textContent))d.open=true});draw()});
 }
 
 const chart=echarts.init($('chart'));const chart2=echarts.init($('chart2'));
@@ -287,36 +301,52 @@ function periodStart(lastDate){if(period==='MAX')return null;const days=PERIODS.
   const d=new Date(lastDate);d.setDate(d.getDate()-days);return d.toISOString().slice(0,10)}
 function draw(){
   const ids=sel.filter(id=>series(id).length);
-  if(!ids.length){chart.clear();chart.setOption({title:{text:'위에서 품목을 골라주세요',left:'center',top:'middle',textStyle:{color:'#a3aec4',fontSize:16,fontWeight:'normal'}}});$('msg').textContent='';return}
-  const hasStk=ids.some(i=>i.startsWith('stk:')),hasPx=ids.some(i=>!i.startsWith('stk:'));
-  $('msg').textContent=(hasStk&&hasPx&&mode==='raw')?'가격(왼쪽 축, USD)과 주가(오른쪽 축, 현지 통화)를 다른 축으로 그렸습니다. 방향 비교는 지수화가 편합니다.':'';
-  const lastAll=ids.map(id=>series(id).at(-1)[0]).sort().at(-1),ps=periodStart(lastAll);
-  let ci=0;const ser=ids.map(id=>{let d=series(id);
-    if(mode==='idx'&&d.length){const bp=d.find(p=>!ps||p[0]>=ps)||d[d.length-1];const b=bp[1];d=d.map(([t,v])=>[t,+(v/b*100).toFixed(2)])}
-    const stkAxis=mode==='raw'&&hasPx&&id.startsWith('stk:');
+  if(!ids.length){chart.clear();chart.setOption({title:{text:'위에서 품목을 골라주세요',left:'center',top:'middle',textStyle:{color:'#5d6880',fontSize:16,fontWeight:'normal'}}});$('msg').textContent='';return}
+  const stks=ids.filter(i=>i.startsWith('stk:')),pxs=ids.filter(i=>!i.startsWith('stk:'));
+  const curs=new Set(stks.map(i=>(S.items[i.slice(4)]||{}).cur));
+  const mixed=(stks.length&&pxs.length)||curs.size>1;
+  const m=mode==='auto'?(mixed?'idx':'raw'):mode;
+  // when prices are selected, show stocks only over the price history so lines are comparable
+  const floor=pxs.length?pxs.map(id=>series(id)[0][0]).sort()[0]:null;
+  const lastAll=ids.map(id=>series(id).at(-1)[0]).sort().at(-1);
+  let ps=periodStart(lastAll);if(floor&&(!ps||ps<floor))ps=floor;
+  const msg=[];
+  if(mode==='auto'&&mixed)msg.push('단위·통화가 서로 달라 자동으로 지수화(보이는 구간 첫날=100)해서 그렸습니다. 실제 값은 \'원래 값\'을 누르세요.');
+  if(m==='raw'&&stks.length&&pxs.length)msg.push('원래 값: 가격은 왼쪽 축(USD), 주가는 오른쪽 축(현지 통화)입니다.');
+  if(floor&&stks.length)msg.push(`주가는 가격 기록이 있는 ${floor} 이후만 표시합니다.`);
+  $('msg').textContent=msg.join(' ');
+  let ci=0;const ser=ids.map(id=>{let d=series(id);if(floor)d=d.filter(p=>p[0]>=floor);
+    if(m==='idx'&&d.length){const bp=d.find(p=>!ps||p[0]>=ps)||d[d.length-1];const b=bp[1];d=d.map(([t,v])=>[t,+(v/b*100).toFixed(2)])}
+    const stkAxis=m==='raw'&&pxs.length&&id.startsWith('stk:');
     return {name:label(id),type:'line',showSymbol:d.length<40,symbolSize:6,data:d,yAxisIndex:stkAxis?1:0,lineStyle:{width:2.2},color:COLORS[(ci++)%COLORS.length],connectNulls:true}});
-  chart.setOption({backgroundColor:'transparent',animation:false,tooltip:{trigger:'axis',valueFormatter:v=>v==null?'–':Number(v).toLocaleString('en-US',{maximumFractionDigits:3})},
-    legend:{top:0,type:'scroll',textStyle:{color:'#eef2f8'}},grid:{left:8,right:8,top:40,bottom:60,containLabel:true},
-    xAxis:{type:'time',axisLine:{lineStyle:{color:'#2f3a51'}},axisLabel:{color:'#a3aec4',hideOverlap:true}},
-    yAxis:[{type:'value',scale:true,splitLine:{lineStyle:{color:'#232c40'}},axisLabel:{color:'#a3aec4'}},{type:'value',scale:true,show:hasStk&&hasPx&&mode==='raw',splitLine:{show:false},axisLabel:{color:'#a3aec4'}}],
-    dataZoom:[{type:'inside',zoomOnMouseWheel:false,moveOnMouseWheel:false,moveOnMouseMove:true,startValue:ps||undefined,endValue:lastAll,filterMode:'none'},
-              {type:'slider',height:22,bottom:12,borderColor:'#2f3a51',textStyle:{color:'#a3aec4'},startValue:ps||undefined,endValue:lastAll,filterMode:'none'}],series:ser},true);
+  const touch=matchMedia('(pointer:coarse)').matches;
+  chart.setOption({backgroundColor:'transparent',animation:false,tooltip:{trigger:'axis',confine:true,valueFormatter:v=>v==null?'–':Number(v).toLocaleString('en-US',{maximumFractionDigits:3})},
+    legend:{top:0,type:'scroll',textStyle:{color:'#18202e'}},grid:{left:8,right:8,top:40,bottom:60,containLabel:true},
+    xAxis:{type:'time',axisLine:{lineStyle:{color:'#cfd6e2'}},axisLabel:{color:'#5d6880',hideOverlap:true}},
+    yAxis:[{type:'value',scale:true,splitLine:{lineStyle:{color:'#eef1f6'}},axisLabel:{color:'#5d6880'}},{type:'value',scale:true,show:m==='raw'&&!!stks.length&&!!pxs.length,splitLine:{show:false},axisLabel:{color:'#5d6880'}}],
+    dataZoom:[{type:'inside',disabled:touch,zoomOnMouseWheel:false,moveOnMouseWheel:false,moveOnMouseMove:true,startValue:ps||undefined,endValue:lastAll,filterMode:'none'},
+              {type:'slider',height:24,bottom:10,borderColor:'#cfd6e2',fillerColor:'rgba(232,114,12,.15)',handleStyle:{color:'#e8720c'},textStyle:{color:'#5d6880'},startValue:ps||undefined,endValue:lastAll,filterMode:'none'}],series:ser},true);
 }
-// Mouse wheel: zoom with the right edge (latest date) fixed. Wheel down = longer period, up = shorter.
-chart.getZr().on('mousewheel',e=>{const o=chart.getOption();if(!o.dataZoom||!o.dataZoom.length)return;
-  e.event.preventDefault&&e.event.preventDefault();
-  const z=o.dataZoom[0];let st=z.start??0,en=z.end??100;const span=Math.max(en-st,0.5);
-  const ns=Math.min(100,Math.max(1,e.wheelDelta<0?span*1.25:span/1.25));
-  chart.dispatchAction({type:'dataZoom',start:Math.max(0,en-ns),end:en});});
-$('chart').addEventListener('wheel',ev=>{if(chart.getOption().dataZoom)ev.preventDefault()},{passive:false});
+// Zoom with the right edge (latest date) fixed. factor>1 = longer period, <1 = shorter.
+function zoomRight(factor){const o=chart.getOption();if(!o.dataZoom||!o.dataZoom.length)return;
+  const z=o.dataZoom[1]||o.dataZoom[0];const st=z.start??0,en=z.end??100;const span=Math.max(en-st,0.5);
+  const ns=Math.min(en,Math.max(1,span*factor));chart.dispatchAction({type:'dataZoom',start:en-ns,end:en})}
+chart.getZr().on('mousewheel',e=>{e.event.preventDefault&&e.event.preventDefault();zoomRight(e.wheelDelta<0?1.25:0.8)});
+$('chart').addEventListener('wheel',ev=>ev.preventDefault(),{passive:false});
+// two-finger pinch on phones/tablets, also anchored to the latest date
+let pinch=null;const tdist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+$('chart').addEventListener('touchstart',ev=>{if(ev.touches.length===2){const z=(chart.getOption().dataZoom||[])[1]||{};pinch={d:tdist(ev.touches),span:(z.end??100)-(z.start??0),en:z.end??100}}},{passive:true});
+$('chart').addEventListener('touchmove',ev=>{if(pinch&&ev.touches.length===2){ev.preventDefault();const r=pinch.d/Math.max(tdist(ev.touches),1);
+  const ns=Math.min(pinch.en,Math.max(1,pinch.span*r));chart.dispatchAction({type:'dataZoom',start:pinch.en-ns,end:pinch.en})}},{passive:false});
+$('chart').addEventListener('touchend',()=>{pinch=null});
 function draw2(){
   const ser=[];let ci=0;
   for(const [a,b,nm] of [...PAIRS_SC,...PAIRS_ETT]){const d=ratioSeries(a,b);if(d.length)ser.push({name:nm,type:'line',data:d,showSymbol:d.length<40,color:COLORS[(ci++)%COLORS.length],lineStyle:{width:2}})}
-  if(!ser.length){chart2.setOption({title:{text:'데이터 수집 중',left:'center',top:'middle',textStyle:{color:'#a3aec4',fontSize:15,fontWeight:'normal'}}});return}
-  ser.push({name:'기준선 1.0',type:'line',data:[],markLine:{silent:true,symbol:'none',lineStyle:{color:'#ffbf66',type:'dashed'},data:[{yAxis:1}],label:{color:'#ffbf66',formatter:'1.0'}}});
-  chart2.setOption({backgroundColor:'transparent',animation:false,tooltip:{trigger:'axis',valueFormatter:v=>v==null?'–':Number(v).toFixed(2)+'배'},legend:{top:0,type:'scroll',textStyle:{color:'#eef2f8'}},
-    grid:{left:8,right:8,top:40,bottom:20,containLabel:true},xAxis:{type:'time',axisLabel:{color:'#a3aec4',hideOverlap:true},axisLine:{lineStyle:{color:'#2f3a51'}}},
-    yAxis:{type:'value',scale:true,splitLine:{lineStyle:{color:'#232c40'}},axisLabel:{color:'#a3aec4',formatter:'{value}배'}},series:ser},true);
+  if(!ser.length){chart2.setOption({title:{text:'데이터 수집 중',left:'center',top:'middle',textStyle:{color:'#5d6880',fontSize:15,fontWeight:'normal'}}});return}
+  ser.push({name:'기준선 1.0',type:'line',data:[],markLine:{silent:true,symbol:'none',lineStyle:{color:'#a86207',type:'dashed'},data:[{yAxis:1}],label:{color:'#a86207',formatter:'1.0'}}});
+  chart2.setOption({backgroundColor:'transparent',animation:false,tooltip:{trigger:'axis',valueFormatter:v=>v==null?'–':Number(v).toFixed(2)+'배'},legend:{top:0,type:'scroll',textStyle:{color:'#18202e'}},
+    grid:{left:8,right:8,top:40,bottom:20,containLabel:true},xAxis:{type:'time',axisLabel:{color:'#5d6880',hideOverlap:true},axisLine:{lineStyle:{color:'#cfd6e2'}}},
+    yAxis:{type:'value',scale:true,splitLine:{lineStyle:{color:'#eef1f6'}},axisLabel:{color:'#5d6880',formatter:'{value}배'}},series:ser},true);
 }
 
 function renderTable(){
@@ -344,7 +374,7 @@ function csv(){const ids=sel.filter(id=>series(id).length);if(!ids.length)return
   const bad=(ST.items||[]).filter(x=>!x.ok).map(x=>x.src);
   $('upd').innerHTML=`최근 수집: ${esc(P.updated||'–')}${bad.length?`<br><span class="warn">수집 실패: ${esc(bad.join(', '))}</span>`:''}`;
   seg('periods',PERIODS,period,v=>{period=v;draw()});seg('modes',MODES,mode,v=>{mode=v;draw()});
-  $('clr').onclick=()=>{sel=[];renderPick();draw()};$('csv').onclick=csv;
+  $('zin').onclick=()=>zoomRight(0.7);$('zout').onclick=()=>zoomRight(1.4);$('clr').onclick=()=>{sel=[];renderPick();draw()};$('csv').onclick=csv;
   renderTiles();renderSignals();renderPick();draw();draw2();renderTable();renderBoards();
   const st=P.stamps||{};
   $('foot').innerHTML=`<b>출처</b>: 가격표 <a href="https://www.trendforce.com/price/dram/dram_spot" target="_blank" rel="noopener">TrendForce DRAM</a> · <a href="https://www.trendforce.com/price/flash/flash_spot" target="_blank" rel="noopener">TrendForce NAND</a> 공개 페이지(하루 1~2회 조회), 과거 D램 현물·중국 1Tb NAND <a href="https://memorypricechart.com/" target="_blank" rel="noopener">Memory Price Chart</a>(원출처 TrendForce·ChinaFlashMarket), 주가 Yahoo Finance·Nasdaq.com, HBM·분기 전망은 각 행에 출처 표기.<br>

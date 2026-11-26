@@ -1,0 +1,30 @@
+name: wayback-backfill
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 18 * * 0'   # weekly top-up (Mon 03:00 KST)
+permissions:
+  contents: write
+concurrency:
+  group: update
+  cancel-in-progress: false
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+      - run: python tools/wayback.py
+      - run: python fetch.py
+      - name: commit
+        run: |
+          git config user.name "memory-bot"
+          git config user.email "actions@github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "wayback backfill"
+          git pull --rebase -q || true
+          git push

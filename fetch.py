@@ -271,6 +271,37 @@ def backfill():
     save(f"{OUT}/prices.json", db)
 
 
+# ---------------------------------------------------------------- wayback (archived DRAMeXchange homepage)
+# Older names that are the same product line as a current TrendForce row (filled by tools/wayback.py output).
+ALIAS = {
+    ("module_spot", "DDR5 UDIMM 16GB"): "DDR5 UDIMM 16GB 4800/5600",
+    ("module_spot", "DDR5 RDIMM 32GB"): "DDR5 RDIMM 32GB 4800/5600",
+    ("module_spot", "DDR4 UDIMM 16GB"): "DDR4 UDIMM 16GB 3200",
+}
+
+
+def wayback_merge():
+    wb = load(f"{OUT}/wayback.json", None)
+    if not wb:
+        log("wayback", True, "no archive file yet")
+        return
+    db = load(f"{OUT}/prices.json", {"items": {}})
+    items = db.setdefault("items", {})
+    notes = []
+    for sec, names in wb.get("data", {}).items():
+        for name, rows in names.items():
+            target = ALIAS.get((sec, name), name)
+            iid = slug(f"{sec}_{target}")
+            if iid not in items:      # only extend products that TrendForce still lists
+                continue
+            conv = {d: {"avg": r[0], "hi": r[1], "lo": r[2], "chg": r[3]} for d, r in rows.items()}
+            n = _merge(items[iid], conv, "web.archive.org (DRAMeXchange)")
+            if n:
+                notes.append(f"{iid}+{n}")
+    save(f"{OUT}/prices.json", db)
+    log("wayback", True, " ".join(notes)[:280] or "nothing new")
+
+
 # ---------------------------------------------------------------- stocks
 def _yahoo_chart(host, sym, query):
     r = http(f"https://{host}.finance.yahoo.com/v8/finance/chart/{requests.utils.quote(sym)}?{query}")
@@ -352,7 +383,7 @@ def stocks():
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    for name, fn in (("trendforce", trendforce), ("backfill", backfill), ("stocks", stocks)):
+    for name, fn in (("trendforce", trendforce), ("backfill", backfill), ("wayback", wayback_merge), ("stocks", stocks)):
         try:
             fn()
         except Exception:
