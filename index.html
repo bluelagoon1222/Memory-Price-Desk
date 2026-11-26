@@ -99,6 +99,10 @@ button{font:inherit;color:var(--tx);cursor:pointer}
 footer{color:var(--sub);font-size:14px;padding:10px 24px 34px;max-width:1500px;margin:auto;line-height:1.75;word-break:keep-all}
 @media(max-width:980px){.grid2{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:640px){
+  details.terms .dt tr:first-child{display:none}
+  details.terms .dt tr{display:block;border-bottom:1px solid var(--line);padding:8px 0}
+  details.terms .dt td{display:block;border:0;padding:2px 4px;min-width:0;white-space:normal}
+  .tile .nm .mu{display:block;font-size:12px}
   .tg{font-size:13.5px;padding:6px 11px 6px 9px}
   .seg span{padding:7px 10px;font-size:14px}
   .ctrl{gap:2px 14px}
