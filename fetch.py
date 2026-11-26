@@ -238,7 +238,7 @@ def nasdaq(sym):
 
 def yahoo(sym, years=5):
     """Daily closes, split-adjusted. If the long history stops early (e.g. after a stock split
-    Yahoo sometimes returns null closes), patch the tail from a short-range query and stooq."""
+    Yahoo sometimes returns null closes), patch the tail from a short-range query and Nasdaq.com."""
     p1 = int(time.time()) - years * 366 * 86400
     out = _yahoo_chart("query2", sym, f"period1={p1}&period2={int(time.time())}&interval=1d&events=history")
     def gap(d):  # stale tail, or a hole of >4 days in the last 30 days
