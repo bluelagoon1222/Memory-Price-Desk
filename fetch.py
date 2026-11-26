@@ -199,6 +199,78 @@ def trendforce():
     return added
 
 
+# ---------------------------------------------------------------- backfill (memorypricechart.com)
+# Terms allow viewing/exporting public chart data for personal/analytical use with attribution.
+MPC = "https://memorypricechart.com/data/"
+
+
+def _merge(it, rows, src):
+    """rows: {date: {avg,hi,lo,chg,dh,dl}}; adds only dates we don't already have."""
+    have = {t: i for i, t in enumerate(it["t"])}
+    keys = ("avg", "hi", "lo", "chg", "dh", "dl")
+    table = {t: {k: (it.get(k) or [None] * len(it["t"]))[i] for k in keys} for t, i in have.items()}
+    added = 0
+    for d, r in rows.items():
+        if d not in table:
+            table[d] = {k: r.get(k) for k in keys}
+            added += 1
+    if added:
+        ts = sorted(table)
+        it["t"] = ts
+        for k in keys:
+            it[k] = [table[t][k] for t in ts]
+        it.setdefault("backfill", src)
+    return added
+
+
+def backfill():
+    db = load(f"{OUT}/prices.json", {"items": {}})
+    items = db.setdefault("items", {})
+    notes = []
+    # DRAM chip spot (TrendForce numbers re-published by memorypricechart, from 2026-08-14)
+    try:
+        j = http(MPC + "dram-spot-prices.json").json()
+        for s in j["series"].values():
+            rows = {}
+            for p in s.get("points", []):
+                d = p.get("source_date")
+                if d and p.get("session_average_usd") is not None:
+                    rows[d] = {"avg": p["session_average_usd"], "hi": p.get("session_high_usd"),
+                               "lo": p.get("session_low_usd"), "chg": p.get("source_session_change_pct")}
+            iid = slug("dram_spot_" + s["label"])
+            it = items.setdefault(iid, {"name": s["label"], "sec": "dram_spot", "grp": SECTIONS["dram_spot"][0],
+                                        "kind": "spot", "t": [], "avg": [], "hi": [], "lo": [], "chg": [], "dh": [], "dl": []})
+            notes.append(f"{s['label']}+{_merge(it, rows, 'memorypricechart.com (TrendForce)')}")
+        log("backfill:dram", True, " ".join(notes))
+    except Exception as e:
+        log("backfill:dram", False, e)
+    # NAND 1Tb TLC/QLC spot (ChinaFlashMarket via memorypricechart, from 2026-05)
+    notes = []
+    try:
+        j = http(MPC + "nand-spot-prices.json").json()
+        for s in j["series"].values():
+            rows = {p["date"]: {"avg": p.get("close_usd"), "lo": p.get("low_usd")}
+                    for p in s.get("points", []) if p.get("date") and p.get("close_usd") is not None}
+            prev = None
+            for d in sorted(rows):
+                v = rows[d]["avg"]
+                rows[d]["chg"] = round((v / prev - 1) * 100, 2) if prev else None
+                prev = v
+            iid = slug("cfm_" + s["label"])
+            it = items.setdefault(iid, {"name": s["label"], "sec": "cfm_nand", "grp": "NAND 1Tb 현물(중국 CFM)",
+                                        "kind": "spot", "t": [], "avg": [], "hi": [], "lo": [], "chg": [], "dh": [], "dl": []})
+            # CFM is only available via this source -> refresh all points (latest wins)
+            it["t"], it["avg"], it["lo"], it["chg"] = [], [], [], []
+            it["hi"], it["dh"], it["dl"] = [], [], []
+            _merge(it, rows, "memorypricechart.com (ChinaFlashMarket)")
+            notes.append(f"{s['label']}={len(it['t'])}")
+        db.setdefault("stamps", {})["cfm_nand"] = (j.get("generated_at") or "")[:16].replace("T", " ") + " UTC"
+        log("backfill:nand1tb", True, " ".join(notes))
+    except Exception as e:
+        log("backfill:nand1tb", False, e)
+    save(f"{OUT}/prices.json", db)
+
+
 # ---------------------------------------------------------------- stocks
 def _yahoo_chart(host, sym, query):
     r = http(f"https://{host}.finance.yahoo.com/v8/finance/chart/{requests.utils.quote(sym)}?{query}")
@@ -280,7 +352,7 @@ def stocks():
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    for name, fn in (("trendforce", trendforce), ("stocks", stocks)):
+    for name, fn in (("trendforce", trendforce), ("backfill", backfill), ("stocks", stocks)):
         try:
             fn()
         except Exception:

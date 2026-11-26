@@ -36,6 +36,12 @@ main{padding:16px 24px;max-width:1500px;margin:auto}
 .tile .d{font-size:14px;font-variant-numeric:tabular-nums}
 .tile .m{font-size:12.5px;color:var(--sub);margin-top:4px}
 .tile.na .v{color:var(--sub);font-size:18px}
+.tile.key{border-color:#7a5a2e;background:#231d16}
+.star{display:inline-block;font-size:12px;font-weight:800;color:#141414;background:var(--acc);border-radius:6px;padding:1px 7px;margin-bottom:4px}
+details.terms{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 18px;margin-bottom:16px}
+details.terms summary{cursor:pointer;font-size:17px;font-weight:800}
+details.terms .tw{overflow-x:auto;margin-top:10px}
+.gdesc{color:var(--sub);font-size:13.5px;margin:-2px 0 6px;word-break:keep-all}
 
 /* signals */
 .sig{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);word-break:keep-all}
@@ -115,10 +121,24 @@ footer{color:var(--sub);font-size:14px;padding:10px 24px 34px;max-width:1500px;m
     <div class="st"><span class="no">3</span><span><b>차트</b>에서 가격과 메모리 주가를 같이 고르면 '지수화(시작=100)'로 겹쳐 비교할 수 있습니다.</span></div>
   </div>
 
+  <details class="terms" open>
+    <summary>📘 처음 보시면: 어떤 가격을 보면 되나요?</summary>
+    <div class="tw"><table class="dt">
+      <tr><th>궁금한 것</th><th>볼 품목</th><th>설명</th></tr>
+      <tr><td class="l"><b>"D램 현물가가 올랐다/빠졌다"</b></td><td class="l"><b>DDR4 8Gb 칩</b> (DRAM 현물(칩))<br><span class="mu">최근엔 DDR5 16Gb 칩도 같이 인용</span></td><td class="l">업계에서 오래 써온 기준 품목입니다. 매일 갱신되어 방향 전환을 가장 빨리 보여줍니다.</td></tr>
+      <tr><td class="l"><b>"D램 고정거래가(계약가)"</b></td><td class="l"><b>DDR4 8Gb 1Gx8</b> (DRAM 계약(PC))</td><td class="l">월말에 한 번 발표되는 공급가. 메모리 회사 실적에 직접 연결됩니다. 현물가가 1~2개월 먼저 움직이는 경향이 있습니다.</td></tr>
+      <tr><td class="l"><b>"낸드 가격"</b></td><td class="l"><b>512Gb TLC 웨이퍼</b> (NAND 웨이퍼 현물)<br><span class="mu">매일 보려면 1Tb TLC (중국)</span></td><td class="l">SSD·스마트폰 저장장치 원가 지표. TrendForce 웨이퍼는 주 1회 갱신입니다.</td></tr>
+      <tr><td class="l"><b>서버·AI 수요</b></td><td class="l"><b>DDR5 RDIMM 32GB</b> (모듈 현물)</td><td class="l">서버용 램 모듈 가격. AI 서버 투자 강도를 반영합니다.</td></tr>
+      <tr><td class="l"><b>HBM(고대역폭 메모리)</b></td><td class="l">⑤ HBM 가격 보드</td><td class="l">공개 시세가 없어 리서치 기관 전망치만 모았습니다.</td></tr>
+    </table></div>
+    <div class="tip"><b>용어</b>: Gb=기가비트(8Gb=1GB) · DDR4/DDR5=D램 세대 · eTT=저등급 칩 · TLC/QLC=셀당 3/4비트 저장 NAND · 3200, 4800/5600=속도(MT/s, 초당 전송 횟수) · 2Gx8 같은 표기=칩 내부 구성. 칩 버튼에 마우스를 올리면 설명이 나옵니다.</div>
+  </details>
+
   <div class="card">
     <h2>① 오늘의 시세</h2>
     <p class="hint">단위: 달러(USD). 칩은 개당, 웨이퍼는 장당 환산가, 모듈은 개당 가격입니다. 'Session Average'(거래 세션 평균가) 기준이며, 품목마다 갱신 주기(매일/매주/매월)가 달라 날짜를 같이 표시합니다.</p>
     <div class="tiles" id="tiles"></div>
+    <div class="tip" id="tdesc">카드에 마우스를 올리면 품목 설명이 여기에 나옵니다.</div>
   </div>
 
   <div class="grid2">
@@ -145,7 +165,7 @@ footer{color:var(--sub);font-size:14px;padding:10px 24px 34px;max-width:1500px;m
     </div>
     <div id="msg" class="warn"></div>
     <div id="chart"></div>
-    <div class="tip">💡 가격 기록은 이 사이트가 수집을 시작한 날부터 쌓입니다. TrendForce의 과거 차트는 유료 회원 전용이라 소급하지 않습니다.</div>
+    <div class="tip">💡 차트 위에서 <b>마우스 휠</b>을 돌리면 <b>오른쪽 끝(최신일)은 고정</b>된 채 기간이 늘고 줄어듭니다(아래로=길게, 위로=짧게). 차트를 끌면 좌우로 이동하고, 기간 버튼을 누르면 원래대로 돌아갑니다.<br>📅 과거 데이터: D램 칩 현물은 2026-08-14부터, 중국 1Tb NAND는 2026-05-18부터 있습니다(memorypricechart.com 공개 데이터). 그 외 품목은 이 사이트 수집 시작일(2026-11-25)부터 쌓입니다. 2026-11-17~24는 원천 데이터가 없어 비어 있습니다.</div>
   </div>
 
     <div class="card">
@@ -174,20 +194,39 @@ const PERIODS=[["1M","1개월",30],["3M","3개월",91],["6M","6개월",182],["1Y
 const MODES=[["raw","원래 값"],["idx","지수화 (시작=100)"]];
 // key tiles: [item id, short label, unit]
 const TILES=[
- ["dram_spot_ddr5_16gb_2gx8_4800_5600","DDR5 16Gb 칩 (정품)","칩"],
- ["dram_spot_ddr5_16gb_2gx8_ett","DDR5 16Gb 칩 (eTT)","칩"],
- ["dram_spot_ddr4_16gb_2gx8_3200","DDR4 16Gb 칩","칩"],
- ["dram_spot_ddr4_8gb_1gx8_3200","DDR4 8Gb 칩","칩"],
- ["module_spot_ddr5_rdimm_32gb_4800_5600","DDR5 서버 RDIMM 32GB","모듈"],
- ["dram_contract_ddr4_8gb_1gx8","DDR4 8Gb 계약가","칩·월간"],
- ["wafer_spot_512gb_tlc","NAND 512Gb TLC 웨이퍼","웨이퍼"],
- ["wafer_spot_256gb_tlc","NAND 256Gb TLC 웨이퍼","웨이퍼"]];
+ ["dram_spot_ddr4_8gb_1gx8_3200","DDR4 8Gb 칩","칩·매일","★ 대표 D램 현물가"],
+ ["dram_spot_ddr5_16gb_2gx8_4800_5600","DDR5 16Gb 칩","칩·매일","★ 신세대 대표"],
+ ["dram_spot_ddr4_16gb_2gx8_3200","DDR4 16Gb 칩","칩·매일"],
+ ["dram_spot_ddr5_16gb_2gx8_ett","DDR5 16Gb 칩 (eTT 저등급)","칩·매일"],
+ ["dram_contract_ddr4_8gb_1gx8","DDR4 8Gb 계약가","칩·월간","★ 대표 D램 계약가"],
+ ["module_spot_ddr5_rdimm_32gb_4800_5600","DDR5 서버 RDIMM 32GB","모듈·주간"],
+ ["wafer_spot_512gb_tlc","NAND 512Gb TLC 웨이퍼","칩 환산·주간","★ 대표 낸드 현물가"],
+ ["cfm_1tb_tlc_nand","NAND 1Tb TLC 칩 (중국)","칩·매일"]];
 const PAIRS_SC=[["dram_spot_ddr4_8gb_1gx8_3200","dram_contract_ddr4_8gb_1gx8","DDR4 8Gb 현물÷계약"],
                ["dram_spot_ddr4_16gb_2gx8_3200","dram_contract_ddr4_16gb_2gx8","DDR4 16Gb 현물÷계약"]];
 const PAIRS_ETT=[["dram_spot_ddr5_16gb_2gx8_4800_5600","dram_spot_ddr5_16gb_2gx8_ett","DDR5 16Gb 정품÷eTT"],
                 ["dram_spot_ddr4_16gb_2gx8_3200","dram_spot_ddr4_16gb_2gx8_ett","DDR4 16Gb 정품÷eTT"]];
 let P={items:{}},S={items:{}},H={entries:[]},O={entries:[]},ST={items:[]};
-let sel=["dram_spot_ddr5_16gb_2gx8_4800_5600","dram_spot_ddr4_8gb_1gx8_3200","wafer_spot_512gb_tlc"];
+let sel=["dram_spot_ddr4_8gb_1gx8_3200","dram_spot_ddr5_16gb_2gx8_4800_5600"];
+const SEC_DESC={
+ dram_spot:"D램 칩 1개를 현물시장(유통·브로커 간 즉시 거래)에서 사고판 가격. 매 영업일 갱신되어 시장 분위기를 가장 빨리 반영합니다.",
+ dram_contract:"삼성·SK하이닉스·마이크론이 PC 제조사 같은 대형 고객과 월 단위로 정하는 공급가. 메모리 회사 매출에 직접 연결됩니다. 월말 갱신.",
+ module_spot:"칩 여러 개를 기판에 붙인 완제품 램의 현물가. UDIMM(Unbuffered DIMM)=데스크톱 PC용, RDIMM(Registered DIMM)=서버용. 주 1회.",
+ gddr_spot:"GDDR(Graphics DDR, 그래픽카드용 D램) 칩 현물가. 주 1회.",
+ flash_spot:"구형·소용량 NAND 칩(SLC·MLC) 현물가. 산업기기·IoT(사물인터넷)용으로 시장 비중은 작습니다.",
+ wafer_spot:"NAND 칩을 자르기 전 웨이퍼 상태 가격을 칩 1개 용량 기준으로 환산한 값. SSD·스마트폰 저장장치 원가의 선행지표입니다. 주 1회.",
+ flash_contract:"메모리카드·USB용 NAND 계약가. 월말 갱신.",
+ memCard_spot:"마이크로SD 카드 현물가. 소비자 수요 체감용.",
+ pcc_oem_ssd_contract:"PC 제조사가 사는 SSD(Solid State Drive) 계약가. 분기 갱신.",
+ cfm_nand:"중국 ChinaFlashMarket이 집계하는 1Tb(테라비트=128GB) NAND 칩 현물가. TrendForce 표에 없는 최신 대용량 제품이라 함께 봅니다."};
+const STK_DESC="Yahoo Finance 일별 종가(현지 통화). 액면분할은 조정된 가격입니다.";
+function itemDesc(id){if(id.startsWith('stk:'))return STK_DESC;const it=P.items[id];if(!it)return '';
+  const n=it.name;let x=[];
+  if(/eTT/.test(n))x.push('eTT(effectively Tested): 제조사 정식 검사를 다 거치지 않은 저등급 칩. 저가 제품에 쓰여 정품보다 훨씬 쌉니다.');
+  if(/DDR5/.test(n))x.push('DDR5: 현재 PC·서버 주력 세대.');else if(/DDR4/.test(n))x.push('DDR4: 한 세대 전 제품이지만 거래량이 많아 오래된 기준 지표입니다.');else if(/DDR3/.test(n))x.push('DDR3: 구형 세대(산업용 위주).');
+  if(/TLC/.test(n))x.push('TLC(Triple Level Cell): 셀당 3비트 저장, 현재 주력.');if(/QLC/.test(n))x.push('QLC(Quad Level Cell): 셀당 4비트, 더 싸고 느림.');if(/MLC/.test(n))x.push('MLC(Multi Level Cell): 셀당 2비트.');if(/SLC/.test(n))x.push('SLC(Single Level Cell): 셀당 1비트, 내구성 높음.');
+  if(/SO-DIMM/.test(n))x.push('SO-DIMM: 노트북용 램 모듈.');
+  return [SEC_DESC[it.sec]||'',...x].join(' ')}
 let period="MAX",mode="raw";
 
 const fmt=(v,d)=>v==null||isNaN(v)?'–':Number(v).toLocaleString('en-US',{minimumFractionDigits:d??2,maximumFractionDigits:d??3});
@@ -207,11 +246,12 @@ function ratioSeries(a,b){ // a / last-known b (b is stepwise, e.g. monthly cont
   let j=-1;const out=[];for(const [t,v] of A){while(j+1<B.length&&B[j+1][0]<=t)j++;if(j>=0&&B[j][1])out.push([t,+(v/B[j][1]).toFixed(4)])}return out}
 
 function renderTiles(){
-  $('tiles').innerHTML=TILES.map(([id,nm,u])=>{const it=P.items[id];
-    if(!it||!it.t.length)return `<button class="tile na" data-id="${id}"><div class="nm">${nm}</div><div class="v">수집 대기</div><div class="m">첫 자동 수집 후 표시</div></button>`;
+  $('tiles').innerHTML=TILES.map(([id,nm,u,star])=>{const it=P.items[id];const bd=star?`<div class="star">${star}</div>`:'';
+    if(!it||!it.t.length)return `<button class="tile na" data-id="${id}">${bd}<div class="nm">${nm}</div><div class="v">수집 대기</div><div class="m">첫 자동 수집 후 표시</div></button>`;
     const n=it.t.length,v=it.avg[n-1],c=it.chg[n-1],[dir,k]=streak(it.avg);
     const st=k>=2?` · ${k}회 연속 ${dir>0?'상승':'하락'}`:'';
-    return `<button class="tile" data-id="${id}"><div class="nm">${nm} <span class="mu">${u}</span></div><div class="v">$${fmt(v)}</div><div class="d">${pct(c)}</div><div class="m">${it.t[n-1]} 기준${st}</div></button>`}).join('');
+    return `<button class="tile${star?' key':''}" data-id="${id}" title="${esc(itemDesc(id))}">${bd}<div class="nm">${nm} <span class="mu">${u}</span></div><div class="v">$${fmt(v)}</div><div class="d">${pct(c)}</div><div class="m">${it.t[n-1]} 기준${st}</div></button>`}).join('');
+  document.querySelectorAll('.tile').forEach(b=>b.onmouseenter=()=>{$('tdesc').textContent=itemDesc(b.dataset.id)});
   document.querySelectorAll('.tile').forEach(b=>b.onclick=()=>{if(!sel.includes(b.dataset.id))sel.push(b.dataset.id);renderPick();draw();$('chart').scrollIntoView({behavior:'smooth',block:'center'})});
 }
 
@@ -227,7 +267,7 @@ function renderSignals(){
   for(const [a,b,nm] of PAIRS_ETT){const A=series(a),B=series(b);if(A.length<2||B.length<2)continue;
     const r=ratioSeries(a,b);if(r.length<2)continue;const v=r[r.length-1][1],v0=r[Math.max(0,r.length-6)][1];
     const ch=(v/v0-1)*100;if(Math.abs(ch)>=5)add(ch>0?'r':'y',`${nm} ${v.toFixed(2)}배 (최근 ${ch>0?'+':''}${ch.toFixed(1)}%)`,ch>0?'정품 칩 선호 강화 → 수요 견조':'저등급 대비 정품 프리미엄 축소 → 수요 둔화 가능성')}
-  const it=P.items[TILES[0][0]];
+  const it=P.items['dram_spot_ddr5_16gb_2gx8_4800_5600'];
   if(it&&it.dh&&it.t.length){const n=it.t.length-1,w=(it.dh[n]-it.dl[n])/it.avg[n]*100;
     if(w>40)add('y',`DDR5 16Gb 일중 고저폭 ${w.toFixed(0)}%`,`최고 $${fmt(it.dh[n])} ~ 최저 $${fmt(it.dl[n])}. 호가 편차가 커 평균가 해석에 주의`)}
   if(!out.length)add('g','판정할 데이터가 아직 부족합니다','연속 일수 신호는 최소 4회 기록 후부터 나옵니다.');
@@ -235,31 +275,40 @@ function renderSignals(){
 }
 
 function renderPick(){
-  const groups={};for(const [id,it] of Object.entries(P.items)){(groups[it.grp]=groups[it.grp]||[]).push([id,it.name])}
+  const groups={},gsec={};for(const [id,it] of Object.entries(P.items)){(groups[it.grp]=groups[it.grp]||[]).push([id,it.name]);gsec[it.grp]=it.sec}
   const stk=Object.entries(S.items).map(([k,it])=>['stk:'+k,it.name]);if(stk.length)groups['메모리 주가']=stk;
   let ci=0;const col={};sel.forEach(id=>col[id]=COLORS[(ci++)%COLORS.length]);
-  $('pick').innerHTML=Object.entries(groups).map(([g,arr])=>`<div class="grp"><div class="gl">${esc(g)}</div><div class="chips">${arr.map(([id,nm])=>`<button class="tg ${sel.includes(id)?'on':''}" style="--c:${col[id]||''}" data-id="${id}"><span class="mk">${sel.includes(id)?'✓':''}</span>${esc(nm)}</button>`).join('')}</div></div>`).join('')||'<div class="mu">수집된 품목이 아직 없습니다.</div>';
+  $('pick').innerHTML=Object.entries(groups).map(([g,arr])=>`<div class="grp"><div class="gl">${esc(g)}</div><div class="gdesc">${esc(SEC_DESC[gsec[g]]||(g==='메모리 주가'?STK_DESC:''))}</div><div class="chips">${arr.map(([id,nm])=>`<button class="tg ${sel.includes(id)?'on':''}" style="--c:${col[id]||''}" data-id="${id}" title="${esc(itemDesc(id))}"><span class="mk">${sel.includes(id)?'✓':''}</span>${esc(nm)}</button>`).join('')}</div></div>`).join('')||'<div class="mu">수집된 품목이 아직 없습니다.</div>';
   document.querySelectorAll('#pick .tg').forEach(b=>b.onclick=()=>{const id=b.dataset.id;sel=sel.includes(id)?sel.filter(x=>x!==id):[...sel,id];renderPick();draw()});
 }
 
 const chart=echarts.init($('chart'));const chart2=echarts.init($('chart2'));
-function cut(arr){if(period==='MAX'||!arr.length)return arr;const days=PERIODS.find(p=>p[0]===period)[2];
-  const end=new Date(arr[arr.length-1][0]);end.setDate(end.getDate()-days);const s=end.toISOString().slice(0,10);return arr.filter(p=>p[0]>=s)}
+function periodStart(lastDate){if(period==='MAX')return null;const days=PERIODS.find(p=>p[0]===period)[2];
+  const d=new Date(lastDate);d.setDate(d.getDate()-days);return d.toISOString().slice(0,10)}
 function draw(){
   const ids=sel.filter(id=>series(id).length);
   if(!ids.length){chart.clear();chart.setOption({title:{text:'위에서 품목을 골라주세요',left:'center',top:'middle',textStyle:{color:'#a3aec4',fontSize:16,fontWeight:'normal'}}});$('msg').textContent='';return}
   const hasStk=ids.some(i=>i.startsWith('stk:')),hasPx=ids.some(i=>!i.startsWith('stk:'));
   $('msg').textContent=(hasStk&&hasPx&&mode==='raw')?'가격(왼쪽 축, USD)과 주가(오른쪽 축, 현지 통화)를 다른 축으로 그렸습니다. 방향 비교는 지수화가 편합니다.':'';
-  let ci=0;const ser=ids.map(id=>{let d=cut(series(id));
-    if(mode==='idx'&&d.length){const b=d[0][1];d=d.map(([t,v])=>[t,+(v/b*100).toFixed(2)])}
+  const lastAll=ids.map(id=>series(id).at(-1)[0]).sort().at(-1),ps=periodStart(lastAll);
+  let ci=0;const ser=ids.map(id=>{let d=series(id);
+    if(mode==='idx'&&d.length){const bp=d.find(p=>!ps||p[0]>=ps)||d[d.length-1];const b=bp[1];d=d.map(([t,v])=>[t,+(v/b*100).toFixed(2)])}
     const stkAxis=mode==='raw'&&hasPx&&id.startsWith('stk:');
     return {name:label(id),type:'line',showSymbol:d.length<40,symbolSize:6,data:d,yAxisIndex:stkAxis?1:0,lineStyle:{width:2.2},color:COLORS[(ci++)%COLORS.length],connectNulls:true}});
   chart.setOption({backgroundColor:'transparent',animation:false,tooltip:{trigger:'axis',valueFormatter:v=>v==null?'–':Number(v).toLocaleString('en-US',{maximumFractionDigits:3})},
     legend:{top:0,type:'scroll',textStyle:{color:'#eef2f8'}},grid:{left:8,right:8,top:40,bottom:60,containLabel:true},
     xAxis:{type:'time',axisLine:{lineStyle:{color:'#2f3a51'}},axisLabel:{color:'#a3aec4',hideOverlap:true}},
     yAxis:[{type:'value',scale:true,splitLine:{lineStyle:{color:'#232c40'}},axisLabel:{color:'#a3aec4'}},{type:'value',scale:true,show:hasStk&&hasPx&&mode==='raw',splitLine:{show:false},axisLabel:{color:'#a3aec4'}}],
-    dataZoom:[{type:'inside'},{type:'slider',height:22,bottom:12,borderColor:'#2f3a51',textStyle:{color:'#a3aec4'}}],series:ser},true);
+    dataZoom:[{type:'inside',zoomOnMouseWheel:false,moveOnMouseWheel:false,moveOnMouseMove:true,startValue:ps||undefined,endValue:lastAll,filterMode:'none'},
+              {type:'slider',height:22,bottom:12,borderColor:'#2f3a51',textStyle:{color:'#a3aec4'},startValue:ps||undefined,endValue:lastAll,filterMode:'none'}],series:ser},true);
 }
+// Mouse wheel: zoom with the right edge (latest date) fixed. Wheel down = longer period, up = shorter.
+chart.getZr().on('mousewheel',e=>{const o=chart.getOption();if(!o.dataZoom||!o.dataZoom.length)return;
+  e.event.preventDefault&&e.event.preventDefault();
+  const z=o.dataZoom[0];let st=z.start??0,en=z.end??100;const span=Math.max(en-st,0.5);
+  const ns=Math.min(100,Math.max(1,e.wheelDelta<0?span*1.25:span/1.25));
+  chart.dispatchAction({type:'dataZoom',start:Math.max(0,en-ns),end:en});});
+$('chart').addEventListener('wheel',ev=>{if(chart.getOption().dataZoom)ev.preventDefault()},{passive:false});
 function draw2(){
   const ser=[];let ci=0;
   for(const [a,b,nm] of [...PAIRS_SC,...PAIRS_ETT]){const d=ratioSeries(a,b);if(d.length)ser.push({name:nm,type:'line',data:d,showSymbol:d.length<40,color:COLORS[(ci++)%COLORS.length],lineStyle:{width:2}})}
@@ -275,7 +324,7 @@ function renderTable(){
   let h='<tr><th>품목</th><th>기준일</th><th>평균가($)</th><th>세션 고가</th><th>세션 저가</th><th>변화</th><th>누적 변화</th><th>기록 수</th></tr>';
   for(const [g,arr] of Object.entries(groups)){h+=`<tr class="grp"><td colspan="8">${esc(g)}</td></tr>`;
     for(const [id,it] of arr){const n=it.t.length-1;if(n<0)continue;const cum=n>0?(it.avg[n]/it.avg[0]-1)*100:null;
-      h+=`<tr><td class="nm"><button data-id="${id}">${esc(it.name)}</button></td><td>${it.t[n]}</td><td>${fmt(it.avg[n])}</td><td>${fmt(it.hi[n])}</td><td>${fmt(it.lo[n])}</td><td>${pct(it.chg[n])}</td><td>${pct(cum)}</td><td>${it.t.length}</td></tr>`}}
+      h+=`<tr><td class="nm"><button data-id="${id}" title="${esc(itemDesc(id))}">${esc(it.name)}</button></td><td>${it.t[n]}</td><td>${fmt(it.avg[n])}</td><td>${fmt(it.hi[n])}</td><td>${fmt(it.lo[n])}</td><td>${pct(it.chg[n])}</td><td>${pct(cum)}</td><td>${it.t.length}</td></tr>`}}
   $('tbl').innerHTML=h;document.querySelectorAll('#tbl button').forEach(b=>b.onclick=()=>{if(!sel.includes(b.dataset.id))sel.push(b.dataset.id);renderPick();draw();$('chart').scrollIntoView({behavior:'smooth',block:'center'})});
 }
 function renderBoards(){
@@ -298,7 +347,7 @@ function csv(){const ids=sel.filter(id=>series(id).length);if(!ids.length)return
   $('clr').onclick=()=>{sel=[];renderPick();draw()};$('csv').onclick=csv;
   renderTiles();renderSignals();renderPick();draw();draw2();renderTable();renderBoards();
   const st=P.stamps||{};
-  $('foot').innerHTML=`<b>출처</b>: 가격표 <a href="https://www.trendforce.com/price/dram/dram_spot" target="_blank" rel="noopener">TrendForce DRAM</a> · <a href="https://www.trendforce.com/price/flash/flash_spot" target="_blank" rel="noopener">TrendForce NAND</a> 공개 페이지(하루 1~2회 조회), 주가 Yahoo Finance, HBM·분기 전망은 각 행에 출처 표기.<br>
+  $('foot').innerHTML=`<b>출처</b>: 가격표 <a href="https://www.trendforce.com/price/dram/dram_spot" target="_blank" rel="noopener">TrendForce DRAM</a> · <a href="https://www.trendforce.com/price/flash/flash_spot" target="_blank" rel="noopener">TrendForce NAND</a> 공개 페이지(하루 1~2회 조회), 과거 D램 현물·중국 1Tb NAND <a href="https://memorypricechart.com/" target="_blank" rel="noopener">Memory Price Chart</a>(원출처 TrendForce·ChinaFlashMarket), 주가 Yahoo Finance·Nasdaq.com, HBM·분기 전망은 각 행에 출처 표기.<br>
   각 표의 원본 갱신 시각(대만 시간): ${Object.entries(st).map(([k,v])=>`${esc(k)} ${esc(v)}`).join(' · ')||'–'}<br>
   DRAM 칩 현물은 매 영업일, 모듈·NAND 웨이퍼·메모리카드는 주 1회, 계약가는 월 1회(월말) 갱신됩니다. 개인 참고용이며 투자 권유가 아닙니다.`;
   addEventListener('resize',()=>{chart.resize();chart2.resize()});
