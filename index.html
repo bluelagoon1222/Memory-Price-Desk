@@ -49,6 +49,19 @@ details.grp summary:before{content:'▸';color:var(--acc);font-weight:900;width:
 details.grp[open] summary:before{content:'▾'}
 details.grp .cnt{font-size:12.5px;color:var(--sub);font-weight:600}
 .zbtn{display:flex;gap:6px}
+.explain{display:grid;gap:10px;margin-bottom:10px;font-size:14px;line-height:1.6;word-break:keep-all}
+.explain>div{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.explain .c1{color:#e8720c}.explain .c2{color:#1d5fe0}
+.gtabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.gtab{background:var(--btn);border:1.5px solid var(--bd);border-radius:9px;padding:6px 11px;font-size:14px;font-weight:700;color:var(--tx)}
+.gtab .n{color:var(--sub);font-weight:600;font-size:12.5px;margin-left:4px}
+.gtab.has{border-color:var(--acc)}
+.gtab.open{background:var(--acc);border-color:var(--acc);color:#fff}.gtab.open .n{color:#fff}
+.gpanel{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.selrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 4px;font-size:14px}
+.selrow .lg{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--line);border-left:5px solid var(--c);border-radius:8px;padding:3px 4px 3px 8px;font-size:13.5px;font-weight:700}
+.selrow .lg button{background:transparent;border:0;color:var(--sub);font-size:13px;padding:0 4px}
+.selrow .lg.cur{background:#fff4ea}
 .gdesc{color:var(--sub);font-size:13.5px;margin:-2px 0 6px;word-break:keep-all}
 
 /* signals */
@@ -164,8 +177,17 @@ footer{color:var(--sub);font-size:14px;padding:10px 24px 34px;max-width:1500px;m
       <div id="sigs"></div>
     </div>
     <div class="card">
-      <h2>③ 선행지표 차트</h2>
-      <p class="hint"><b>현물÷계약 배수</b>: 1보다 크면 현물이 계약보다 비싸 다음 계약가 인상 압력, 1 아래로 내려가면 인하 압력. <b>정품÷eTT(effectively Tested, 저등급 칩) 배수</b>: 커질수록 고품질 칩 수요가 강함.</p>
+      <h2>③ 다음 계약가 미리 보기 (선행지표)</h2>
+      <p class="hint">가격 자체가 아니라 <b>두 가격의 비율(몇 배인지)</b>을 그린 차트입니다. 계약가가 어느 쪽으로 갈지 미리 짐작하는 데 씁니다.</p>
+      <div class="explain">
+        <div><b class="c1">① 현물÷계약 배수</b> = 오늘 현물가 ÷ 최근 계약가<br>
+        <span id="ex1"></span>
+        → 배수가 <b>1보다 크면</b> 시장에서 칩이 계약가보다 비싸게 팔린다는 뜻이라, 다음 계약 때 공급사가 <b>값을 올릴 근거</b>가 됩니다.<br>
+        → 배수가 계속 줄다가 <b>1 아래로 내려가면</b> 계약가 <b>인하 신호</b>입니다.</div>
+        <div><b class="c2">② 정품÷eTT 배수</b> = 정품 칩 가격 ÷ 저등급(eTT, effectively Tested) 칩 가격<br>
+        <span id="ex2"></span>
+        → 배수가 <b>커지면</b> PC·서버 업체가 비싸도 정품을 사려 한다는 뜻이라 <b>수요가 강함</b>, <b>작아지면</b> 수요 둔화 신호입니다.</div>
+      </div>
       <div id="chart2"></div>
     </div>
   </div>
@@ -182,6 +204,7 @@ footer{color:var(--sub);font-size:14px;padding:10px 24px 34px;max-width:1500px;m
     </div>
     <div id="msg" class="warn"></div>
     <div id="chart"></div>
+    <div id="daily"></div>
     <div class="tip">💡 <b>오른쪽 끝(최신일)은 고정</b>된 채 기간을 늘리고 줄입니다. PC: 차트 위에서 마우스 휠(아래로=길게, 위로=짧게), 끌면 좌우 이동. 휴대폰: 두 손가락으로 벌리기·오므리기, 또는 <b>＋ 확대 / － 축소</b> 버튼. 아래 막대의 손잡이를 끌어도 됩니다.<br>📅 과거 데이터: D램 칩 현물은 2026-08-14부터, 중국 1Tb NAND는 2026-05-18부터 있습니다(memorypricechart.com 공개 데이터). 그 외 품목은 이 사이트 수집 시작일(2026-11-25)부터 쌓입니다. 2026-11-17~24는 원천 데이터가 없어 비어 있습니다.</div>
   </div>
 
@@ -269,7 +292,7 @@ function renderTiles(){
     const st=k>=2?` · ${k}회 연속 ${dir>0?'상승':'하락'}`:'';
     return `<button class="tile${star?' key':''}" data-id="${id}" title="${esc(itemDesc(id))}">${bd}<div class="nm">${nm} <span class="mu">${u}</span></div><div class="v">$${fmt(v)}</div><div class="d">${pct(c)}</div><div class="m">${it.t[n-1]} 기준${st}</div></button>`}).join('');
   document.querySelectorAll('.tile').forEach(b=>b.onmouseenter=()=>{$('tdesc').textContent=itemDesc(b.dataset.id)});
-  document.querySelectorAll('.tile').forEach(b=>b.onclick=()=>{if(!sel.includes(b.dataset.id))sel.push(b.dataset.id);renderPick();draw();$('chart').scrollIntoView({behavior:'smooth',block:'center'})});
+  document.querySelectorAll('.tile').forEach(b=>b.onclick=()=>{if(!sel.includes(b.dataset.id))sel.push(b.dataset.id);dayId=b.dataset.id;renderPick();draw();renderDaily();$('chart').scrollIntoView({behavior:'smooth',block:'center'})});
 }
 
 function renderSignals(){
@@ -291,15 +314,36 @@ function renderSignals(){
   $('sigs').innerHTML=out.join('');
 }
 
+let openGrp='DRAM 현물(칩)',dayId=null;
+function colorOf(id){const k=sel.indexOf(id);return k<0?'':COLORS[k%COLORS.length]}
+function toggle(id){sel=sel.includes(id)?sel.filter(x=>x!==id):[...sel,id];if(sel.includes(id))dayId=id;else if(dayId===id)dayId=sel.at(-1)||null;renderPick();draw();renderDaily()}
 function renderPick(){
   const groups={},gsec={};for(const [id,it] of Object.entries(P.items)){(groups[it.grp]=groups[it.grp]||[]).push([id,it.name]);gsec[it.grp]=it.sec}
   const stk=Object.entries(S.items).map(([k,it])=>['stk:'+k,it.name]);if(stk.length)groups['메모리 주가']=stk;
-  let ci=0;const col={};sel.forEach(id=>col[id]=COLORS[(ci++)%COLORS.length]);
-  const OPEN=new Set(['DRAM 현물(칩)','메모리 주가']);
-  $('pick').innerHTML=Object.entries(groups).map(([g,arr])=>{const n=arr.filter(([id])=>sel.includes(id)).length;return `<details class="grp" ${OPEN.has(g)||n?'open':''}><summary><span class="gl" style="margin:0">${esc(g)}</span><span class="cnt">${arr.length}개${n?` · ${n}개 선택`:''}</span></summary><div class="gdesc">${esc(SEC_DESC[gsec[g]]||(g==='메모리 주가'?STK_DESC:''))}</div><div class="chips">${arr.map(([id,nm])=>`<button class="tg ${sel.includes(id)?'on':''}" style="--c:${col[id]||''}" data-id="${id}" title="${esc(itemDesc(id))}"><span class="mk">${sel.includes(id)?'✓':''}</span>${esc(nm)}</button>`).join('')}</div></details>`}).join('')||'<div class="mu">수집된 품목이 아직 없습니다.</div>';
-  document.querySelectorAll('#pick .tg').forEach(b=>b.onclick=()=>{const id=b.dataset.id;const open=[...document.querySelectorAll('#pick details[open] .gl')].map(x=>x.textContent);sel=sel.includes(id)?sel.filter(x=>x!==id):[...sel,id];renderPick();document.querySelectorAll('#pick details').forEach(d=>{if(open.includes(d.querySelector('.gl').textContent))d.open=true});draw()});
+  const tabs=Object.entries(groups).map(([g,arr])=>{const n=arr.filter(([id])=>sel.includes(id)).length;
+    return `<button class="gtab${g===openGrp?' open':''}${n?' has':''}" data-g="${esc(g)}">${esc(g)}<span class="n">${arr.length}${n?` · ${n}✓`:''}</span></button>`}).join('');
+  const arr=groups[openGrp]||[];
+  const days=id=>id.startsWith('stk:')?'':` ${(P.items[id]||{t:[]}).t.length}일`;
+  const panel=openGrp&&arr.length?`<div class="gpanel"><div class="gdesc">${esc(SEC_DESC[gsec[openGrp]]||(openGrp==='메모리 주가'?STK_DESC:''))}</div><div class="chips">${arr.map(([id,nm])=>`<button class="tg ${sel.includes(id)?'on':''}" style="--c:${colorOf(id)}" data-id="${id}" title="${esc(itemDesc(id))}"><span class="mk">${sel.includes(id)?'✓':''}</span>${esc(nm)}<span class="mu" style="font-size:12px;font-weight:500">${days(id)}</span></button>`).join('')}</div></div>`:'';
+  const selrow=sel.length?`<div class="selrow"><span class="mu">차트에 표시 중 (이름을 누르면 일별 가격):</span>${sel.map(id=>`<span class="lg${id===dayId?' cur':''}" style="--c:${colorOf(id)}"><span data-day="${id}" style="cursor:pointer">${esc(label(id).replace(/ \(.+\)$/,''))}</span><button data-x="${id}" aria-label="빼기">✕</button></span>`).join('')}</div>`:'';
+  $('pick').innerHTML=`<div class="gtabs">${tabs}</div>${panel}${selrow}`;
+  document.querySelectorAll('#pick .gtab').forEach(b=>b.onclick=()=>{openGrp=openGrp===b.dataset.g?null:b.dataset.g;renderPick()});
+  document.querySelectorAll('#pick .tg').forEach(b=>b.onclick=()=>toggle(b.dataset.id));
+  document.querySelectorAll('#pick [data-x]').forEach(b=>b.onclick=()=>toggle(b.dataset.x));
+  document.querySelectorAll('#pick [data-day]').forEach(b=>b.onclick=()=>{dayId=b.dataset.day;renderPick();renderDaily();$('daily').scrollIntoView({behavior:'smooth',block:'nearest'})});
 }
-
+function renderDaily(){
+  const id=dayId&&sel.includes(dayId)?dayId:sel.at(-1);
+  if(!id){$('daily').innerHTML='';return}
+  const stk=id.startsWith('stk:');let rows=[];
+  if(stk){const it=S.items[id.slice(4)];rows=it.t.map((t,i)=>({t,avg:it.c[i]})).slice(-250)}
+  else{const it=P.items[id];rows=it.t.map((t,i)=>({t,avg:it.avg[i],hi:it.hi[i],lo:it.lo[i]}))}
+  rows=rows.map((r,i)=>({...r,ch:i&&rows[i-1].avg?(r.avg/rows[i-1].avg-1)*100:null})).reverse();
+  const cur=stk?S.items[id.slice(4)].cur:'USD';
+  $('daily').innerHTML=`<h3 style="margin:14px 0 6px;font-size:16.5px">📋 일별 가격: ${esc(label(id))} <span class="mu" style="font-size:13px;font-weight:500">(${cur} · 최신순 · ${rows.length}건${stk?', 최근 1년':''})</span></h3>
+  <p class="hint" style="margin:0 0 8px">위 '차트에 표시 중' 목록에서 이름을 누르면 그 품목으로 바뀝니다. 날짜가 띄엄띄엄한 구간은 원천 기록이 그 날짜만 남아 있는 경우입니다.</p>
+  <div class="tbl-wrap" style="max-height:360px"><table class="dt"><tr><th>날짜</th><th>평균가</th>${stk?'':'<th>고가</th><th>저가</th>'}<th>직전 대비</th></tr>${rows.map(r=>`<tr><td>${r.t}</td><td>${fmt(r.avg)}</td>${stk?'':`<td>${fmt(r.hi)}</td><td>${fmt(r.lo)}</td>`}<td>${pct(r.ch)}</td></tr>`).join('')}</table></div>`;
+}
 const chart=echarts.init($('chart'));const chart2=echarts.init($('chart2'));
 function periodStart(lastDate){if(period==='MAX')return null;const days=PERIODS.find(p=>p[0]===period)[2];
   const d=new Date(lastDate);d.setDate(d.getDate()-days);return d.toISOString().slice(0,10)}
@@ -343,14 +387,21 @@ $('chart').addEventListener('touchstart',ev=>{if(ev.touches.length===2){const z=
 $('chart').addEventListener('touchmove',ev=>{if(pinch&&ev.touches.length===2){ev.preventDefault();const r=pinch.d/Math.max(tdist(ev.touches),1);
   const ns=Math.min(pinch.en,Math.max(1,pinch.span*r));chart.dispatchAction({type:'dataZoom',start:pinch.en-ns,end:pinch.en})}},{passive:false});
 $('chart').addEventListener('touchend',()=>{pinch=null});
+function explain(){
+  const last=a=>{const x=series(a);return x.length?x.at(-1):null};
+  const s1=last('dram_spot_ddr4_8gb_1gx8_3200'),c1=last('dram_contract_ddr4_8gb_1gx8');
+  if(s1&&c1)$('ex1').innerHTML=`예) DDR4 8Gb 현물 $${fmt(s1[1])} ÷ 계약 $${fmt(c1[1])} = <b>${(s1[1]/c1[1]).toFixed(2)}배</b> (현물이 ${((s1[1]/c1[1]-1)*100).toFixed(0)}% 비쌈)<br>`;
+  const a=last('dram_spot_ddr5_16gb_2gx8_4800_5600'),b=last('dram_spot_ddr5_16gb_2gx8_ett');
+  if(a&&b)$('ex2').innerHTML=`예) DDR5 16Gb 정품 $${fmt(a[1])} ÷ eTT $${fmt(b[1])} = <b>${(a[1]/b[1]).toFixed(2)}배</b><br>`;
+}
 function draw2(){
   const ser=[];let ci=0;
-  for(const [a,b,nm] of [...PAIRS_SC,...PAIRS_ETT]){const d=ratioSeries(a,b);if(d.length)ser.push({name:nm,type:'line',data:d,showSymbol:d.length<40,color:COLORS[(ci++)%COLORS.length],lineStyle:{width:2}})}
+  for(const [a,b,nm] of [...PAIRS_SC,...PAIRS_ETT]){const d=ratioSeries(a,b);const e=PAIRS_ETT.some(p=>p[2]===nm);if(d.length)ser.push({name:nm+(e?' (오른쪽 축)':' (왼쪽 축)'),type:'line',data:d,yAxisIndex:e?1:0,showSymbol:d.length<40,color:COLORS[(ci++)%COLORS.length],lineStyle:{width:2,type:e?'dashed':'solid'}})}
   if(!ser.length){chart2.setOption({title:{text:'데이터 수집 중',left:'center',top:'middle',textStyle:{color:'#5d6880',fontSize:15,fontWeight:'normal'}}});return}
   ser.push({name:'기준선 1.0',type:'line',data:[],markLine:{silent:true,symbol:'none',lineStyle:{color:'#a86207',type:'dashed'},data:[{yAxis:1}],label:{color:'#a86207',formatter:'1.0'}}});
   chart2.setOption({backgroundColor:'transparent',animation:false,tooltip:{trigger:'axis',valueFormatter:v=>v==null?'–':Number(v).toFixed(2)+'배'},legend:{top:0,type:'scroll',textStyle:{color:'#18202e'}},
     grid:{left:8,right:8,top:40,bottom:20,containLabel:true},xAxis:{type:'time',axisLabel:{color:'#5d6880',hideOverlap:true},axisLine:{lineStyle:{color:'#cfd6e2'}}},
-    yAxis:{type:'value',scale:true,splitLine:{lineStyle:{color:'#eef1f6'}},axisLabel:{color:'#5d6880',formatter:'{value}배'}},series:ser},true);
+    yAxis:[{type:'value',scale:true,splitLine:{lineStyle:{color:'#eef1f6'}},axisLabel:{color:'#5d6880',formatter:'{value}배'}},{type:'value',scale:true,splitLine:{show:false},axisLabel:{color:'#5d6880',formatter:'{value}배'}}],series:ser},true);
 }
 
 function renderTable(){
@@ -359,7 +410,7 @@ function renderTable(){
   for(const [g,arr] of Object.entries(groups)){h+=`<tr class="grp"><td colspan="8">${esc(g)}</td></tr>`;
     for(const [id,it] of arr){const n=it.t.length-1;if(n<0)continue;const cum=n>0?(it.avg[n]/it.avg[0]-1)*100:null;
       h+=`<tr><td class="nm"><button data-id="${id}" title="${esc(itemDesc(id))}">${esc(it.name)}</button></td><td>${it.t[n]}</td><td>${fmt(it.avg[n])}</td><td>${fmt(it.hi[n])}</td><td>${fmt(it.lo[n])}</td><td>${pct(it.chg[n])}</td><td>${pct(cum)}</td><td>${it.t.length}</td></tr>`}}
-  $('tbl').innerHTML=h;document.querySelectorAll('#tbl button').forEach(b=>b.onclick=()=>{if(!sel.includes(b.dataset.id))sel.push(b.dataset.id);renderPick();draw();$('chart').scrollIntoView({behavior:'smooth',block:'center'})});
+  $('tbl').innerHTML=h;document.querySelectorAll('#tbl button').forEach(b=>b.onclick=()=>{if(!sel.includes(b.dataset.id))sel.push(b.dataset.id);dayId=b.dataset.id;renderPick();draw();renderDaily();$('chart').scrollIntoView({behavior:'smooth',block:'center'})});
 }
 function renderBoards(){
   $('hbm').innerHTML='<tr><th>발표일</th><th>제품</th><th>대상</th><th>항목</th><th>수치</th><th>출처</th></tr>'+
@@ -378,8 +429,8 @@ function csv(){const ids=sel.filter(id=>series(id).length);if(!ids.length)return
   const bad=(ST.items||[]).filter(x=>!x.ok).map(x=>x.src);
   $('upd').innerHTML=`최근 수집: ${esc(P.updated||'–')}${bad.length?`<br><span class="warn">수집 실패: ${esc(bad.join(', '))}</span>`:''}`;
   seg('periods',PERIODS,period,v=>{period=v;draw()});seg('modes',MODES,mode,v=>{mode=v;draw()});
-  $('zin').onclick=()=>zoomRight(0.7);$('zout').onclick=()=>zoomRight(1.4);$('clr').onclick=()=>{sel=[];renderPick();draw()};$('csv').onclick=csv;
-  renderTiles();renderSignals();renderPick();draw();draw2();renderTable();renderBoards();
+  $('zin').onclick=()=>zoomRight(0.7);$('zout').onclick=()=>zoomRight(1.4);$('clr').onclick=()=>{sel=[];renderPick();draw();renderDaily()};$('csv').onclick=csv;
+  renderTiles();renderSignals();renderPick();draw();renderDaily();draw2();explain();renderTable();renderBoards();
   const st=P.stamps||{};
   $('foot').innerHTML=`<b>출처</b>: 가격표 <a href="https://www.trendforce.com/price/dram/dram_spot" target="_blank" rel="noopener">TrendForce DRAM</a> · <a href="https://www.trendforce.com/price/flash/flash_spot" target="_blank" rel="noopener">TrendForce NAND</a> 공개 페이지(하루 1~2회 조회), 과거 D램 현물·중국 1Tb NAND <a href="https://memorypricechart.com/" target="_blank" rel="noopener">Memory Price Chart</a>(원출처 TrendForce·ChinaFlashMarket), 주가 Yahoo Finance·Nasdaq.com, HBM·분기 전망은 각 행에 출처 표기.<br>
   각 표의 원본 갱신 시각(대만 시간): ${Object.entries(st).map(([k,v])=>`${esc(k)} ${esc(v)}`).join(' · ')||'–'}<br>
