@@ -17,9 +17,10 @@ BUDGET = int(os.environ.get("MAX_FETCH", "900"))
 MON = {m: i for i, m in enumerate("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(), 1)}
 SECMAP = {"DRAM Spot": "dram_spot", "Module Spot": "module_spot", "GDDR Spot": "gddr_spot",
           "Flash Spot": "flash_spot", "NAND Flash Spot": "flash_spot", "Wafer Spot": "wafer_spot",
-          "Memory Card Spot": "memCard_spot", "DRAM Contract": "dram_contract",
+          "Memory Card Spot": "memCard_spot", "Memory Card": "memCard_spot", "DRAM Contract": "dram_contract",
           "NAND Flash Contract": "flash_contract", "Flash Contract": "flash_contract"}
-HEAD = re.compile(r"([A-Za-z][A-Za-z ]{1,30}?) Price Last Update ?: ?([A-Z][a-z]{2})\.? ?(\d{1,2}),? (\d{4})")
+HEAD = re.compile(r"(DRAM Spot|Module Spot|GDDR Spot|NAND Flash Spot|Flash Spot|Wafer Spot|Memory Card Spot|Memory Card|DRAM Contract|NAND Flash Contract|Flash Contract) Price Last Update ?: ?([A-Z][a-z]{2})\.? ?(\d{1,2}),? (\d{4})")
+VER = 2
 NUM = re.compile(r"^-?[\d,]+\.\d+$")  # prices always carry decimals; "3200" speed grades do not
 SKIP = re.compile(r"^(Item|Average Change|Low Change|Session Change|History|Avg Change)\s*")
 
@@ -69,6 +70,8 @@ def parse(t):
 
 def main():
     db = json.load(open(OUT)) if os.path.exists(OUT) else {"done": [], "data": {}}
+    if db.get("ver") != VER:      # parser changed -> re-read every snapshot
+        db = {"ver": VER, "done": [], "data": {}}
     done = set(db["done"])
     cdx = requests.get("https://web.archive.org/cdx/search/cdx", headers=UA, timeout=180, params={
         "url": "dramexchange.com/", "from": os.environ.get("FROM", "2016"), "to": "2026", "output": "json",
@@ -100,8 +103,8 @@ def main():
                 print(ts, n, flush=True)
         except Exception as e:  # noqa
             print("fail", ts, e, flush=True)
-            time.sleep(10)
-        time.sleep(2.5)
+            time.sleep(45)
+        time.sleep(4)
     db["done"] = sorted(set(db["done"]))
     json.dump(db, open(OUT, "w"), separators=(",", ":"))
     for sec, items in db["data"].items():

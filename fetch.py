@@ -280,6 +280,26 @@ ALIAS = {
 }
 
 
+def canon(sec, name):
+    """Map older speed grades / spellings to the current TrendForce row of the same product line."""
+    n = re.sub(r"\s+", " ", name.replace("*", "x")).strip()
+    if sec == "dram_spot":
+        ett = "eTT" in n
+        if re.match(r"DDR4 8Gb? ?\(?1Gx8", n):
+            return "DDR4 8Gb (1Gx8) eTT" if ett else "DDR4 8Gb (1Gx8) 3200"
+        if re.match(r"DDR4 16Gb? ?\(?2Gx8", n):
+            return "DDR4 16Gb (2Gx8) eTT" if ett else "DDR4 16Gb (2Gx8) 3200"
+        if re.match(r"DDR5 16Gb? ?\(?2Gx8", n):
+            return "DDR5 16Gb (2Gx8) eTT" if ett else "DDR5 16Gb (2Gx8) 4800/5600"
+        if re.match(r"DDR3 4Gb 512Mx8", n) and not ett:
+            return "DDR3 4Gb 512Mx8 1600/1866"
+    if sec == "flash_spot":
+        m = re.match(r"(\d+)Gb (\d+)Gx8 MLC", n)
+        if m:
+            return f"MLC {m.group(1)}Gb {m.group(2)}GBx8"
+    return n
+
+
 def wayback_merge():
     wb = load(f"{OUT}/wayback.json", None)
     if not wb:
@@ -290,7 +310,7 @@ def wayback_merge():
     notes = []
     for sec, names in wb.get("data", {}).items():
         for name, rows in names.items():
-            target = ALIAS.get((sec, name), name)
+            target = ALIAS.get((sec, name)) or canon(sec, name)
             iid = slug(f"{sec}_{target}")
             if iid not in items:      # only extend products that TrendForce still lists
                 continue
