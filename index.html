@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MEMORY PRICE CHECK</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+:root{--bg:#0f1420;--card:#171e2d;--card2:#1d2638;--line:#2f3a51;--tx:#eef2f8;--sub:#a3aec4;--acc:#f58220;--up:#ff6161;--dn:#5b97ff;--btn:#232d42;--btnh:#2c3854;--ok:#3ccf8e;--warn:#ffbf66}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",Pretendard,sans-serif;font-size:16px;line-height:1.5}
+a{color:var(--acc);text-decoration:none}
+header{padding:20px 24px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px}
+h1{margin:2px 0 4px;font-size:30px;letter-spacing:.5px;line-height:1.15}
+.sub{color:var(--sub);font-size:15px}
+.tags{color:var(--acc);font-size:14px;margin-top:4px;word-break:keep-all}
+main{padding:16px 24px;max-width:1500px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px;min-width:0}
+.card h2{font-size:19px;margin:0 0 4px}
+.card .hint{color:var(--sub);font-size:14.5px;margin:0 0 12px;word-break:keep-all}
+.lbl{color:var(--sub);font-size:14.5px;font-weight:600;margin:14px 0 8px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.guide{display:flex;flex-wrap:wrap;gap:10px 22px;background:var(--card2);border:1px dashed #44516d;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:15.5px}
+.guide b{color:var(--acc)}
+.guide .st{display:flex;gap:8px;align-items:flex-start;flex:1 1 260px;word-break:keep-all}
+.guide .no{flex:0 0 26px;height:26px;border-radius:50%;background:var(--acc);color:#111;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+
+/* KPI tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.tile{background:var(--card2);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;text-align:left;color:var(--tx);font:inherit}
+.tile:hover{border-color:var(--acc)}
+.tile .nm{font-size:14px;color:var(--sub);font-weight:700;line-height:1.3}
+.tile .v{font-size:26px;font-weight:800;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.tile .v small{font-size:13px;color:var(--sub);font-weight:600;margin-left:4px}
+.tile .d{font-size:14px;font-variant-numeric:tabular-nums}
+.tile .m{font-size:12.5px;color:var(--sub);margin-top:4px}
+.tile.na .v{color:var(--sub);font-size:18px}
+
+/* signals */
+.sig{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);word-break:keep-all}
+.sig:last-child{border-bottom:0}
+.dot{flex:0 0 14px;height:14px;border-radius:50%;margin-top:5px}
+.dot.r{background:var(--up)}.dot.b{background:var(--dn)}.dot.y{background:var(--warn)}.dot.g{background:#6b7894}
+.sig .t{font-weight:700}
+.sig .x{color:var(--sub);font-size:14px}
+
+/* buttons */
+button{font:inherit;color:var(--tx);cursor:pointer}
+.btn{background:var(--btn);border:1.5px solid #3f4c68;border-radius:9px;padding:8px 14px;font-size:15px;font-weight:600;box-shadow:0 2px 0 #0a0e17}
+.btn:hover{background:var(--btnh);border-color:var(--acc)}
+.tg{display:inline-flex;align-items:center;gap:7px;background:var(--btn);border:1.5px solid #3f4c68;border-radius:999px;padding:6px 13px 6px 10px;font-size:14.5px;box-shadow:0 2px 0 #0a0e17}
+.tg:hover{border-color:var(--acc);background:var(--btnh)}
+.tg .mk{width:18px;height:18px;border-radius:50%;border:2px solid #6b7894;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex:0 0 18px}
+.tg.on{background:#2a2014;border-color:var(--c,var(--acc));font-weight:700}
+.tg.on .mk{background:var(--c,var(--acc));border-color:var(--c,var(--acc));color:#111}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.grp{margin-bottom:10px}
+.grp .gl{font-size:13.5px;color:var(--acc);font-weight:800;margin:6px 0}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{cursor:pointer}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:inline-block;background:var(--btn);border:1.5px solid #3f4c68;border-radius:9px;padding:7px 13px;font-size:15px;box-shadow:0 2px 0 #0a0e17}
+.seg input:checked+span{background:var(--acc);border-color:var(--acc);color:#141414;font-weight:800}
+.seg input:focus-visible+span{outline:2px solid #fff}
+.ctrl{display:flex;flex-wrap:wrap;gap:4px 26px;align-items:flex-end}
+#chart{width:100%;height:520px}
+#chart2{width:100%;height:360px}
+.warn{color:var(--warn);font-size:14px;margin-top:6px}
+.tip{color:var(--sub);font-size:14px;margin-top:8px;word-break:keep-all}
+
+/* tables */
+.tbl-wrap{overflow:auto;max-height:640px;border:1px solid var(--line);border-radius:10px}
+.dt{border-collapse:collapse;width:100%;font-size:14.5px}
+.dt th,.dt td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.dt th{color:var(--sub);font-weight:700;position:sticky;top:0;background:var(--card);z-index:2}
+.dt td:first-child,.dt th:first-child{text-align:left}
+.dt td.l{text-align:left;white-space:normal;min-width:150px;word-break:keep-all}
+.dt tr.grp td{color:var(--acc);font-weight:800;text-align:left;padding-top:14px}
+.dt td.nm button{background:transparent;border:0;padding:0;color:var(--tx);font-size:14.5px;text-align:left}
+.dt td.nm button:hover{color:var(--acc)}
+.badge{display:inline-block;font-size:12px;font-weight:800;border-radius:6px;padding:1px 6px;border:1px solid var(--warn);color:var(--warn)}
+.badge.ok{border-color:var(--ok);color:var(--ok)}
+.up{color:var(--up)}.dn{color:var(--dn)}.mu{color:var(--sub)}
+footer{color:var(--sub);font-size:14px;padding:10px 24px 34px;max-width:1500px;margin:auto;line-height:1.75;word-break:keep-all}
+@media(max-width:980px){.grid2{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:640px){
+  header{padding:16px 14px 12px}
+  h1{font-size:25px}
+  main{padding:12px 10px}
+  .card{padding:14px 12px;border-radius:10px}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tile .v{font-size:21px}
+  #chart{height:420px}
+  #chart2{height:300px}
+  .dt{font-size:13.5px}
+  footer{padding:8px 14px 30px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="sub"><a href="https://bluelagoon1222.github.io/" target="_top">← SJ Market Desk</a></div>
+    <h1>MEMORY PRICE CHECK</h1>
+    <div class="sub">DRAM·NAND 현물가·계약가 매일 기록 + HBM(High Bandwidth Memory, 고대역폭 메모리) 전망 + 메모리 주가 겹쳐 보기</div>
+    <div class="tags">#DRAM현물가 #NAND현물가 #DDR5 #HBM가격 #SK하이닉스 #삼성전자 #마이크론</div>
+  </div>
+  <div class="sub" id="upd">데이터 불러오는 중…</div>
+</header>
+<main>
+  <div class="guide">
+    <div class="st"><span class="no">1</span><span><b>오늘의 시세</b>에서 주요 품목의 평균가와 전일 대비 변화를 봅니다. 카드를 누르면 차트에 추가됩니다.</span></div>
+    <div class="st"><span class="no">2</span><span><b>신호등</b>은 연속 하락, 현물-계약 역전 같은 규칙으로 방향 전환을 미리 알려줍니다.</span></div>
+    <div class="st"><span class="no">3</span><span><b>차트</b>에서 가격과 메모리 주가를 같이 고르면 '지수화(시작=100)'로 겹쳐 비교할 수 있습니다.</span></div>
+  </div>
+
+  <div class="card">
+    <h2>① 오늘의 시세</h2>
+    <p class="hint">단위: 달러(USD). 칩은 개당, 웨이퍼는 장당 환산가, 모듈은 개당 가격입니다. 'Session Average'(거래 세션 평균가) 기준이며, 품목마다 갱신 주기(매일/매주/매월)가 달라 날짜를 같이 표시합니다.</p>
+    <div class="tiles" id="tiles"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>② 신호등</h2>
+      <p class="hint">규칙 기반 자동 판정입니다. 빨강=상승 압력, 파랑=하락 압력, 노랑=주의, 회색=데이터 부족.</p>
+      <div id="sigs"></div>
+    </div>
+    <div class="card">
+      <h2>③ 선행지표 차트</h2>
+      <p class="hint"><b>현물÷계약 배수</b>: 1보다 크면 현물이 계약보다 비싸 다음 계약가 인상 압력, 1 아래로 내려가면 인하 압력. <b>정품÷eTT(effectively Tested, 저등급 칩) 배수</b>: 커질수록 고품질 칩 수요가 강함.</p>
+      <div id="chart2"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>④ 시계열 차트</h2>
+    <p class="hint">버튼을 누르면 차트에 추가·제거됩니다. 주가와 가격을 함께 고르면 '지수화' 보기를 권합니다.</p>
+    <div id="pick"></div>
+    <div class="ctrl">
+      <div><div class="lbl">기간</div><div class="seg" id="periods"></div></div>
+      <div><div class="lbl">보기 방식</div><div class="seg" id="modes"></div></div>
+      <div><div class="lbl">&nbsp;</div><button class="btn" id="clr">🗑 선택 지우기</button> <button class="btn" id="csv">⬇ CSV</button></div>
+    </div>
+    <div id="msg" class="warn"></div>
+    <div id="chart"></div>
+    <div class="tip">💡 가격 기록은 이 사이트가 수집을 시작한 날부터 쌓입니다. TrendForce의 과거 차트는 유료 회원 전용이라 소급하지 않습니다.</div>
+  </div>
+
+    <div class="card">
+      <h2>⑤ HBM 가격 보드</h2>
+      <p class="hint">HBM은 공개 시세가 없습니다. 리서치 기관 전망치를 발표일순으로 모았으며 모두 <span class="badge">추정</span>입니다. Gb(기가비트) 가격 × 8 = GB(기가바이트) 가격.</p>
+      <div class="tbl-wrap"><table class="dt" id="hbm"></table></div>
+    </div>
+    <div class="card">
+      <h2>⑥ 분기 계약가 전망</h2>
+      <p class="hint">QoQ(Quarter on Quarter, 전분기 대비) 변화율 전망입니다. 실제 계약가는 ⑦ 표의 '계약' 행에서 확인합니다.</p>
+      <div class="tbl-wrap"><table class="dt" id="outlook"></table></div>
+    </div>
+
+  <div class="card">
+    <h2>⑦ 전체 가격표</h2>
+    <p class="hint">품목명을 누르면 차트에 추가됩니다. '누적 변화'는 이 사이트 기록 시작일 대비입니다.</p>
+    <div class="tbl-wrap"><table class="dt" id="tbl"></table></div>
+  </div>
+</main>
+<footer id="foot"></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const COLORS=['#f58220','#5b97ff','#3ccf8e','#ff6161','#c18cff','#ffd34d','#35d0e0','#ff8fc7','#9bd65b','#e0a96d','#8fa3ff','#ff9e5e'];
+const PERIODS=[["1M","1개월",30],["3M","3개월",91],["6M","6개월",182],["1Y","1년",365],["MAX","전체",-1]];
+const MODES=[["raw","원래 값"],["idx","지수화 (시작=100)"]];
+// key tiles: [item id, short label, unit]
+const TILES=[
+ ["dram_spot_ddr5_16gb_2gx8_4800_5600","DDR5 16Gb 칩 (정품)","칩"],
+ ["dram_spot_ddr5_16gb_2gx8_ett","DDR5 16Gb 칩 (eTT)","칩"],
+ ["dram_spot_ddr4_16gb_2gx8_3200","DDR4 16Gb 칩","칩"],
+ ["dram_spot_ddr4_8gb_1gx8_3200","DDR4 8Gb 칩","칩"],
+ ["module_spot_ddr5_rdimm_32gb_4800_5600","DDR5 서버 RDIMM 32GB","모듈"],
+ ["dram_contract_ddr4_8gb_1gx8","DDR4 8Gb 계약가","칩·월간"],
+ ["wafer_spot_512gb_tlc","NAND 512Gb TLC 웨이퍼","웨이퍼"],
+ ["wafer_spot_256gb_tlc","NAND 256Gb TLC 웨이퍼","웨이퍼"]];
+const PAIRS_SC=[["dram_spot_ddr4_8gb_1gx8_3200","dram_contract_ddr4_8gb_1gx8","DDR4 8Gb 현물÷계약"],
+               ["dram_spot_ddr4_16gb_2gx8_3200","dram_contract_ddr4_16gb_2gx8","DDR4 16Gb 현물÷계약"]];
+const PAIRS_ETT=[["dram_spot_ddr5_16gb_2gx8_4800_5600","dram_spot_ddr5_16gb_2gx8_ett","DDR5 16Gb 정품÷eTT"],
+                ["dram_spot_ddr4_16gb_2gx8_3200","dram_spot_ddr4_16gb_2gx8_ett","DDR4 16Gb 정품÷eTT"]];
+let P={items:{}},S={items:{}},H={entries:[]},O={entries:[]},ST={items:[]};
+let sel=["dram_spot_ddr5_16gb_2gx8_4800_5600","dram_spot_ddr4_8gb_1gx8_3200","wafer_spot_512gb_tlc"];
+let period="MAX",mode="raw";
+
+const fmt=(v,d)=>v==null||isNaN(v)?'–':Number(v).toLocaleString('en-US',{minimumFractionDigits:d??2,maximumFractionDigits:d??3});
+const pct=v=>v==null||isNaN(v)?'<span class="mu">–</span>':`<span class="${v>0?'up':v<0?'dn':'mu'}">${v>0?'▲ +':v<0?'▼ ':''}${v.toFixed(2)}%</span>`;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function J(u,def){try{const r=await fetch(u+'?v='+Date.now());if(!r.ok)throw 0;return await r.json()}catch(e){return def}}
+
+function series(id){ // -> [[date,value],...]
+  if(id.startsWith('stk:')){const it=S.items[id.slice(4)];return it?it.t.map((t,i)=>[t,it.c[i]]):[]}
+  const it=P.items[id];return it?it.t.map((t,i)=>[t,it.avg[i]]).filter(p=>p[1]!=null):[]}
+function label(id){if(id.startsWith('stk:')){const it=S.items[id.slice(4)];return it?`${it.name} 주가`:id}
+  const it=P.items[id];return it?`${it.name} (${it.grp})`:id}
+function streak(arr){ // consecutive same-direction moves at the end
+  let n=0,dir=0;for(let i=arr.length-1;i>0;i--){const d=Math.sign(arr[i]-arr[i-1]);if(d===0)break;if(!dir)dir=d;if(d!==dir)break;n++}return [dir,n]}
+function ratioSeries(a,b){ // a / last-known b (b is stepwise, e.g. monthly contract)
+  const A=series(a),B=series(b);if(!A.length||!B.length)return [];
+  let j=-1;const out=[];for(const [t,v] of A){while(j+1<B.length&&B[j+1][0]<=t)j++;if(j>=0&&B[j][1])out.push([t,+(v/B[j][1]).toFixed(4)])}return out}
+
+function renderTiles(){
+  $('tiles').innerHTML=TILES.map(([id,nm,u])=>{const it=P.items[id];
+    if(!it||!it.t.length)return `<button class="tile na" data-id="${id}"><div class="nm">${nm}</div><div class="v">수집 대기</div><div class="m">첫 자동 수집 후 표시</div></button>`;
+    const n=it.t.length,v=it.avg[n-1],c=it.chg[n-1],[dir,k]=streak(it.avg);
+    const st=k>=2?` · ${k}회 연속 ${dir>0?'상승':'하락'}`:'';
+    return `<button class="tile" data-id="${id}"><div class="nm">${nm} <span class="mu">${u}</span></div><div class="v">$${fmt(v)}</div><div class="d">${pct(c)}</div><div class="m">${it.t[n-1]} 기준${st}</div></button>`}).join('');
+  document.querySelectorAll('.tile').forEach(b=>b.onclick=()=>{if(!sel.includes(b.dataset.id))sel.push(b.dataset.id);renderPick();draw();$('chart').scrollIntoView({behavior:'smooth',block:'center'})});
+}
+
+function renderSignals(){
+  const out=[];
+  const add=(c,t,x)=>out.push(`<div class="sig"><span class="dot ${c}"></span><div><div class="t">${t}</div><div class="x">${x}</div></div></div>`);
+  for(const [id,nm] of TILES){const it=P.items[id];if(!it||it.t.length<4)continue;const [d,k]=streak(it.avg);
+    if(k>=3)add(d>0?'r':'b',`${nm}: ${k}회 연속 ${d>0?'상승':'하락'}`,`최근 ${it.t[it.t.length-1]} 평균 $${fmt(it.avg[it.avg.length-1])}`)}
+  for(const [a,b,nm] of PAIRS_SC){const r=ratioSeries(a,b);if(!r.length)continue;const v=r[r.length-1][1];
+    if(v<1)add('b',`${nm} = ${v.toFixed(2)}배 (역전)`,'현물이 계약가보다 싸짐 → 다음 계약가 인하 압력');
+    else if(v<1.15)add('y',`${nm} = ${v.toFixed(2)}배`,'현물 프리미엄이 15% 미만으로 축소 → 상승 동력 약화 주의');
+    else add('r',`${nm} = ${v.toFixed(2)}배`,'현물이 계약가보다 15% 이상 비쌈 → 계약가 인상 압력 유지')}
+  for(const [a,b,nm] of PAIRS_ETT){const A=series(a),B=series(b);if(A.length<2||B.length<2)continue;
+    const r=ratioSeries(a,b);if(r.length<2)continue;const v=r[r.length-1][1],v0=r[Math.max(0,r.length-6)][1];
+    const ch=(v/v0-1)*100;if(Math.abs(ch)>=5)add(ch>0?'r':'y',`${nm} ${v.toFixed(2)}배 (최근 ${ch>0?'+':''}${ch.toFixed(1)}%)`,ch>0?'정품 칩 선호 강화 → 수요 견조':'저등급 대비 정품 프리미엄 축소 → 수요 둔화 가능성')}
+  const it=P.items[TILES[0][0]];
+  if(it&&it.dh&&it.t.length){const n=it.t.length-1,w=(it.dh[n]-it.dl[n])/it.avg[n]*100;
+    if(w>40)add('y',`DDR5 16Gb 일중 고저폭 ${w.toFixed(0)}%`,`최고 $${fmt(it.dh[n])} ~ 최저 $${fmt(it.dl[n])}. 호가 편차가 커 평균가 해석에 주의`)}
+  if(!out.length)add('g','판정할 데이터가 아직 부족합니다','연속 일수 신호는 최소 4회 기록 후부터 나옵니다.');
+  $('sigs').innerHTML=out.join('');
+}
+
+function renderPick(){
+  const groups={};for(const [id,it] of Object.entries(P.items)){(groups[it.grp]=groups[it.grp]||[]).push([id,it.name])}
+  const stk=Object.entries(S.items).map(([k,it])=>['stk:'+k,it.name]);if(stk.length)groups['메모리 주가']=stk;
+  let ci=0;const col={};sel.forEach(id=>col[id]=COLORS[(ci++)%COLORS.length]);
+  $('pick').innerHTML=Object.entries(groups).map(([g,arr])=>`<div class="grp"><div class="gl">${esc(g)}</div><div class="chips">${arr.map(([id,nm])=>`<button class="tg ${sel.includes(id)?'on':''}" style="--c:${col[id]||''}" data-id="${id}"><span class="mk">${sel.includes(id)?'✓':''}</span>${esc(nm)}</button>`).join('')}</div></div>`).join('')||'<div class="mu">수집된 품목이 아직 없습니다.</div>';
+  document.querySelectorAll('#pick .tg').forEach(b=>b.onclick=()=>{const id=b.dataset.id;sel=sel.includes(id)?sel.filter(x=>x!==id):[...sel,id];renderPick();draw()});
+}
+
+const chart=echarts.init($('chart'));const chart2=echarts.init($('chart2'));
+function cut(arr){if(period==='MAX'||!arr.length)return arr;const days=PERIODS.find(p=>p[0]===period)[2];
+  const end=new Date(arr[arr.length-1][0]);end.setDate(end.getDate()-days);const s=end.toISOString().slice(0,10);return arr.filter(p=>p[0]>=s)}
+function draw(){
+  const ids=sel.filter(id=>series(id).length);
+  if(!ids.length){chart.clear();chart.setOption({title:{text:'위에서 품목을 골라주세요',left:'center',top:'middle',textStyle:{color:'#a3aec4',fontSize:16,fontWeight:'normal'}}});$('msg').textContent='';return}
+  const hasStk=ids.some(i=>i.startsWith('stk:')),hasPx=ids.some(i=>!i.startsWith('stk:'));
+  $('msg').textContent=(hasStk&&hasPx&&mode==='raw')?'가격(왼쪽 축, USD)과 주가(오른쪽 축, 현지 통화)를 다른 축으로 그렸습니다. 방향 비교는 지수화가 편합니다.':'';
+  let ci=0;const ser=ids.map(id=>{let d=cut(series(id));
+    if(mode==='idx'&&d.length){const b=d[0][1];d=d.map(([t,v])=>[t,+(v/b*100).toFixed(2)])}
+    const stkAxis=mode==='raw'&&hasPx&&id.startsWith('stk:');
+    return {name:label(id),type:'line',showSymbol:d.length<40,symbolSize:6,data:d,yAxisIndex:stkAxis?1:0,lineStyle:{width:2.2},color:COLORS[(ci++)%COLORS.length],connectNulls:true}});
+  chart.setOption({backgroundColor:'transparent',animation:false,tooltip:{trigger:'axis',valueFormatter:v=>v==null?'–':Number(v).toLocaleString('en-US',{maximumFractionDigits:3})},
+    legend:{top:0,type:'scroll',textStyle:{color:'#eef2f8'}},grid:{left:8,right:8,top:40,bottom:60,containLabel:true},
+    xAxis:{type:'time',axisLine:{lineStyle:{color:'#2f3a51'}},axisLabel:{color:'#a3aec4',hideOverlap:true}},
+    yAxis:[{type:'value',scale:true,splitLine:{lineStyle:{color:'#232c40'}},axisLabel:{color:'#a3aec4'}},{type:'value',scale:true,show:hasStk&&hasPx&&mode==='raw',splitLine:{show:false},axisLabel:{color:'#a3aec4'}}],
+    dataZoom:[{type:'inside'},{type:'slider',height:22,bottom:12,borderColor:'#2f3a51',textStyle:{color:'#a3aec4'}}],series:ser},true);
+}
+function draw2(){
+  const ser=[];let ci=0;
+  for(const [a,b,nm] of [...PAIRS_SC,...PAIRS_ETT]){const d=ratioSeries(a,b);if(d.length)ser.push({name:nm,type:'line',data:d,showSymbol:d.length<40,color:COLORS[(ci++)%COLORS.length],lineStyle:{width:2}})}
+  if(!ser.length){chart2.setOption({title:{text:'데이터 수집 중',left:'center',top:'middle',textStyle:{color:'#a3aec4',fontSize:15,fontWeight:'normal'}}});return}
+  ser.push({name:'기준선 1.0',type:'line',data:[],markLine:{silent:true,symbol:'none',lineStyle:{color:'#ffbf66',type:'dashed'},data:[{yAxis:1}],label:{color:'#ffbf66',formatter:'1.0'}}});
+  chart2.setOption({backgroundColor:'transparent',animation:false,tooltip:{trigger:'axis',valueFormatter:v=>v==null?'–':Number(v).toFixed(2)+'배'},legend:{top:0,type:'scroll',textStyle:{color:'#eef2f8'}},
+    grid:{left:8,right:8,top:40,bottom:20,containLabel:true},xAxis:{type:'time',axisLabel:{color:'#a3aec4',hideOverlap:true},axisLine:{lineStyle:{color:'#2f3a51'}}},
+    yAxis:{type:'value',scale:true,splitLine:{lineStyle:{color:'#232c40'}},axisLabel:{color:'#a3aec4',formatter:'{value}배'}},series:ser},true);
+}
+
+function renderTable(){
+  const groups={};for(const [id,it] of Object.entries(P.items))(groups[it.grp]=groups[it.grp]||[]).push([id,it]);
+  let h='<tr><th>품목</th><th>기준일</th><th>평균가($)</th><th>세션 고가</th><th>세션 저가</th><th>변화</th><th>누적 변화</th><th>기록 수</th></tr>';
+  for(const [g,arr] of Object.entries(groups)){h+=`<tr class="grp"><td colspan="8">${esc(g)}</td></tr>`;
+    for(const [id,it] of arr){const n=it.t.length-1;if(n<0)continue;const cum=n>0?(it.avg[n]/it.avg[0]-1)*100:null;
+      h+=`<tr><td class="nm"><button data-id="${id}">${esc(it.name)}</button></td><td>${it.t[n]}</td><td>${fmt(it.avg[n])}</td><td>${fmt(it.hi[n])}</td><td>${fmt(it.lo[n])}</td><td>${pct(it.chg[n])}</td><td>${pct(cum)}</td><td>${it.t.length}</td></tr>`}}
+  $('tbl').innerHTML=h;document.querySelectorAll('#tbl button').forEach(b=>b.onclick=()=>{if(!sel.includes(b.dataset.id))sel.push(b.dataset.id);renderPick();draw();$('chart').scrollIntoView({behavior:'smooth',block:'center'})});
+}
+function renderBoards(){
+  $('hbm').innerHTML='<tr><th>발표일</th><th>제품</th><th>대상</th><th>항목</th><th>수치</th><th>출처</th></tr>'+
+    [...H.entries].sort((a,b)=>b.date.localeCompare(a.date)).map(e=>`<tr><td>${e.date}</td><td>${esc(e.product)}</td><td>${esc(e.period)}</td><td class="l">${esc(e.metric)}</td><td class="l"><b>${esc(e.value)}</b>${e.value_gb&&e.value_gb!==e.value?`<br><span class="mu">${esc(e.value_gb)}</span>`:''} <span class="badge">${esc(e.grade)}</span></td><td class="l"><a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.by)}</a><br><span class="mu">${esc(e.via)}</span></td></tr>`).join('');
+  $('outlook').innerHTML='<tr><th>발표일</th><th>분기</th><th>품목</th><th>전망</th><th>출처</th></tr>'+
+    [...O.entries].sort((a,b)=>b.date.localeCompare(a.date)).map(e=>`<tr><td>${e.date}</td><td>${esc(e.quarter)}</td><td class="l">${esc(e.item)}</td><td><b>${esc(e.value)}</b> <span class="badge">${esc(e.grade)}</span></td><td class="l"><a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.by)}</a><br><span class="mu">${esc(e.via)}</span></td></tr>`).join('');
+}
+function seg(el,arr,cur,fn){$(el).innerHTML=arr.map(([k,l])=>`<label><input type="radio" name="${el}" value="${k}" ${k===cur?'checked':''}><span>${l}</span></label>`).join('');
+  $(el).querySelectorAll('input').forEach(i=>i.onchange=()=>fn(i.value))}
+function csv(){const ids=sel.filter(id=>series(id).length);if(!ids.length)return;const all=new Set();const m=ids.map(id=>{const o={};series(id).forEach(([t,v])=>{o[t]=v;all.add(t)});return o});
+  const rows=[['date',...ids.map(label)].join(',')];[...all].sort().forEach(t=>rows.push([t,...m.map(o=>o[t]??'')].join(',')));
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+rows.join('\n')],{type:'text/csv'}));a.download='memory_prices.csv';a.click()}
+
+(async()=>{
+  [P,S,H,O,ST]=await Promise.all([J('data/prices.json',{items:{}}),J('data/stocks.json',{items:{}}),J('data/hbm.json',{entries:[]}),J('data/outlook.json',{entries:[]}),J('data/status.json',{items:[]})]);
+  const bad=(ST.items||[]).filter(x=>!x.ok).map(x=>x.src);
+  $('upd').innerHTML=`최근 수집: ${esc(P.updated||'–')}${bad.length?`<br><span class="warn">수집 실패: ${esc(bad.join(', '))}</span>`:''}`;
+  seg('periods',PERIODS,period,v=>{period=v;draw()});seg('modes',MODES,mode,v=>{mode=v;draw()});
+  $('clr').onclick=()=>{sel=[];renderPick();draw()};$('csv').onclick=csv;
+  renderTiles();renderSignals();renderPick();draw();draw2();renderTable();renderBoards();
+  const st=P.stamps||{};
+  $('foot').innerHTML=`<b>출처</b>: 가격표 <a href="https://www.trendforce.com/price/dram/dram_spot" target="_blank" rel="noopener">TrendForce DRAM</a> · <a href="https://www.trendforce.com/price/flash/flash_spot" target="_blank" rel="noopener">TrendForce NAND</a> 공개 페이지(하루 1~2회 조회), 주가 Yahoo Finance, HBM·분기 전망은 각 행에 출처 표기.<br>
+  각 표의 원본 갱신 시각(대만 시간): ${Object.entries(st).map(([k,v])=>`${esc(k)} ${esc(v)}`).join(' · ')||'–'}<br>
+  DRAM 칩 현물은 매 영업일, 모듈·NAND 웨이퍼·메모리카드는 주 1회, 계약가는 월 1회(월말) 갱신됩니다. 개인 참고용이며 투자 권유가 아닙니다.`;
+  addEventListener('resize',()=>{chart.resize();chart2.resize()});
+})();
+</script>
+</body>
+</html>

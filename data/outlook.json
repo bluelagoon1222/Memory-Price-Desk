@@ -1,0 +1,35 @@
+{
+ "note": "분기 계약가 전망(QoQ, 전분기 대비). 발표될 때마다 한 줄씩 추가합니다.",
+ "entries": [
+  {
+   "date": "2026-09-30",
+   "quarter": "4Q26",
+   "item": "범용 DRAM 계약가",
+   "value": "+10 ~ +15%",
+   "by": "TrendForce",
+   "via": "TrendForce 보도자료 (원문)",
+   "grade": "추정",
+   "url": "https://www.trendforce.com/presscenter/news/20260930-13258.html"
+  },
+  {
+   "date": "2026-09-30",
+   "quarter": "4Q26",
+   "item": "NAND 계약가",
+   "value": "+15 ~ +20%",
+   "by": "TrendForce",
+   "via": "TrendForce 보도자료 (원문)",
+   "grade": "추정",
+   "url": "https://www.trendforce.com/presscenter/news/20260930-13258.html"
+  },
+  {
+   "date": "2026-10-20",
+   "quarter": "4Q26",
+   "item": "DRAM 가격",
+   "value": "약 +20%",
+   "by": "TrendForce",
+   "via": "TrendForce News 헤드라인",
+   "grade": "추정",
+   "url": "https://trendforce.com/news/2026/10/20/news-dram-prices-seen-rising-20-qoq-in-4q26-despite-slower-gains-ai-demand-tight-supply-support-outlook"
+  }
+ ]
+}

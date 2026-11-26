@@ -1,0 +1,89 @@
+{
+ "note": "HBM은 공개 시세가 없어 리서치 기관 전망치(추정)만 모읍니다. 새 수치가 나오면 이 파일에 한 줄씩 추가합니다.",
+ "entries": [
+  {
+   "date": "2026-11-18",
+   "product": "HBM4",
+   "period": "2027",
+   "metric": "단가",
+   "value": "$3.0 ~ $5.5 / Gb",
+   "value_gb": "$24 ~ $44 / GB",
+   "by": "TrendForce (Roadshow Korea)",
+   "via": "ZDNet Korea 보도 → FourWeekMBA 인용",
+   "grade": "추정",
+   "url": "https://fourweekmba.com/ai-trendforce-sees-hbm4-at-3-5-50-per-gb-in-2027-up-to-2-7x/"
+  },
+  {
+   "date": "2026-11-18",
+   "product": "HBM4",
+   "period": "2026",
+   "metric": "단가",
+   "value": "$2.05 / Gb 이상",
+   "value_gb": "약 $16.4 / GB 이상",
+   "by": "TrendForce (Roadshow Korea)",
+   "via": "ZDNet Korea 보도 → FourWeekMBA 인용",
+   "grade": "추정",
+   "url": "https://fourweekmba.com/ai-trendforce-sees-hbm4-at-3-5-50-per-gb-in-2027-up-to-2-7x/"
+  },
+  {
+   "date": "2026-11-18",
+   "product": "HBM4E",
+   "period": "2027",
+   "metric": "단가",
+   "value": "$5 / Gb 이상 논의 중",
+   "value_gb": "",
+   "by": "TrendForce (Roadshow Korea)",
+   "via": "ZDNet Korea 보도 → FourWeekMBA 인용",
+   "grade": "추정",
+   "url": "https://fourweekmba.com/ai-trendforce-sees-hbm4-at-3-5-50-per-gb-in-2027-up-to-2-7x/"
+  },
+  {
+   "date": "2026-09-29",
+   "product": "HBM 전체",
+   "period": "2027",
+   "metric": "평균판매가(ASP) 전년비",
+   "value": "+121%",
+   "value_gb": "",
+   "by": "TrendForce",
+   "via": "TrendForce 보도자료 (원문)",
+   "grade": "추정",
+   "url": "https://www.trendforce.com/presscenter/news/20260929-13255.html"
+  },
+  {
+   "date": "2026-09-29",
+   "product": "HBM 8-Hi vs 12-Hi",
+   "period": "2027",
+   "metric": "Gb당 프리미엄",
+   "value": "8-Hi가 12-Hi보다 10~20% 비쌈",
+   "value_gb": "",
+   "by": "TrendForce",
+   "via": "TrendForce 보도자료 (원문)",
+   "grade": "추정",
+   "url": "https://www.trendforce.com/presscenter/news/20260929-13255.html"
+  },
+  {
+   "date": "2026-08-26",
+   "product": "HBM 전체",
+   "period": "2027",
+   "metric": "계약가 전년비",
+   "value": "+70 ~ +140%",
+   "value_gb": "",
+   "by": "TrendForce",
+   "via": "헤럴드경제 보도",
+   "grade": "추정",
+   "url": "https://biz.heraldcorp.com/article/10852833"
+  },
+  {
+   "date": "2026-08-26",
+   "product": "HBM 전체",
+   "period": "2027",
+   "metric": "평균판매가(ASP)",
+   "value": "$17 / GB (전년비 +44%)",
+   "value_gb": "$17 / GB",
+   "by": "Goldman Sachs",
+   "via": "헤럴드경제 보도",
+   "grade": "추정",
+   "url": "https://biz.heraldcorp.com/article/10852833"
+  }
+ ]
+}
