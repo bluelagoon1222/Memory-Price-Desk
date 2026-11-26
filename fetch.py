@@ -221,14 +221,18 @@ def _yahoo_chart(host, sym, query):
     return out
 
 
-def stooq(sym):
-    """Fallback for US tickers: stooq daily CSV (split-adjusted)."""
-    r = http(f"https://stooq.com/q/d/l/?s={sym.lower()}.us&i=d")
+def nasdaq(sym):
+    """Fallback for US tickers: Nasdaq.com historical quotes (last ~3 months)."""
+    frm = (NOW.date() - dt.timedelta(days=95)).isoformat()
+    r = requests.get(f"https://api.nasdaq.com/api/quote/{sym}/historical?assetclass=stocks&fromdate={frm}"
+                     f"&todate={NOW.date().isoformat()}&limit=200",
+                     headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"}, timeout=40)
+    r.raise_for_status()
+    rows = ((r.json().get("data") or {}).get("tradesTable") or {}).get("rows") or []
     out = {}
-    for line in r.text.strip().splitlines()[1:]:
-        p = line.split(",")
-        if len(p) >= 5 and p[4] not in ("", "N/D"):
-            out[p[0]] = round(float(p[4]), 4)
+    for x in rows:
+        m, d, y = x["date"].split("/")
+        out[f"{y}-{m}-{d}"] = round(float(x["close"].replace("$", "").replace(",", "")), 4)
     return out
 
 
@@ -245,7 +249,7 @@ def yahoo(sym, years=5):
     if gap(out):
         us = "." not in sym and not sym.startswith("^")
         for name, fn in (("yahoo-3mo", lambda: _yahoo_chart("query1", sym, "range=3mo&interval=1d")),
-                         ("stooq", lambda: stooq(sym) if us else {})):
+                         ("nasdaq", lambda: nasdaq(sym) if us else {})):
             try:
                 extra = fn()
                 add = {k: v for k, v in extra.items() if k not in out}
