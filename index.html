@@ -38,6 +38,8 @@ main{padding:16px 24px;max-width:1500px;margin:auto}
 .tile .m{font-size:12.5px;color:var(--sub);margin-top:4px}
 .tile.na .v{color:var(--sub);font-size:18px}
 .tile.key{border-color:#f2b07a;background:#fff8f1}
+.tile.on{box-shadow:0 0 0 3px var(--acc) inset}
+.tile.on::after{content:'✓ 차트 표시 중 (다시 누르면 빼기)';display:block;font-size:12px;color:var(--acc);font-weight:700;margin-top:4px}
 .star{display:inline-block;font-size:12px;font-weight:800;color:#fff;background:var(--acc);border-radius:6px;padding:1px 7px;margin-bottom:4px}
 details.terms{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 18px;margin-bottom:16px}
 details.terms summary{cursor:pointer;font-size:17px;font-weight:800}
@@ -60,7 +62,7 @@ details.grp .cnt{font-size:12.5px;color:var(--sub);font-weight:600}
 .gpanel{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
 .selrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 4px;font-size:14px}
 .selrow .lg{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--line);border-left:5px solid var(--c);border-radius:8px;padding:3px 4px 3px 8px;font-size:13.5px;font-weight:700}
-.selrow .lg button{background:transparent;border:0;color:var(--sub);font-size:13px;padding:0 4px}
+.selrow .lg button{background:#f1f3f7;border:1px solid var(--line);border-radius:6px;color:#d92d2d;font-size:14px;font-weight:800;padding:2px 8px;min-width:30px;min-height:26px}
 .selrow .lg.cur{background:#fff4ea}
 .gdesc{color:var(--sub);font-size:13.5px;margin:-2px 0 6px;word-break:keep-all}
 
@@ -292,7 +294,7 @@ function renderTiles(){
     const st=k>=2?` · ${k}회 연속 ${dir>0?'상승':'하락'}`:'';
     return `<button class="tile${star?' key':''}" data-id="${id}" title="${esc(itemDesc(id))}">${bd}<div class="nm">${nm} <span class="mu">${u}</span></div><div class="v">$${fmt(v)}</div><div class="d">${pct(c)}</div><div class="m">${it.t[n-1]} 기준${st}</div></button>`}).join('');
   document.querySelectorAll('.tile').forEach(b=>b.onmouseenter=()=>{$('tdesc').textContent=itemDesc(b.dataset.id)});
-  document.querySelectorAll('.tile').forEach(b=>b.onclick=()=>{if(!sel.includes(b.dataset.id))sel.push(b.dataset.id);dayId=b.dataset.id;renderPick();draw();renderDaily();$('chart').scrollIntoView({behavior:'smooth',block:'center'})});
+  document.querySelectorAll('.tile').forEach(b=>b.onclick=()=>{const on=sel.includes(b.dataset.id);toggle(b.dataset.id);if(!on)$('chart').scrollIntoView({behavior:'smooth',block:'center'})});
 }
 
 function renderSignals(){
@@ -325,8 +327,9 @@ function renderPick(){
   const arr=groups[openGrp]||[];
   const days=id=>id.startsWith('stk:')?'':` ${(P.items[id]||{t:[]}).t.length}일`;
   const panel=openGrp&&arr.length?`<div class="gpanel"><div class="gdesc">${esc(SEC_DESC[gsec[openGrp]]||(openGrp==='메모리 주가'?STK_DESC:''))}</div><div class="chips">${arr.map(([id,nm])=>`<button class="tg ${sel.includes(id)?'on':''}" style="--c:${colorOf(id)}" data-id="${id}" title="${esc(itemDesc(id))}"><span class="mk">${sel.includes(id)?'✓':''}</span>${esc(nm)}<span class="mu" style="font-size:12px;font-weight:500">${days(id)}</span></button>`).join('')}</div></div>`:'';
-  const selrow=sel.length?`<div class="selrow"><span class="mu">차트에 표시 중 (이름을 누르면 일별 가격):</span>${sel.map(id=>`<span class="lg${id===dayId?' cur':''}" style="--c:${colorOf(id)}"><span data-day="${id}" style="cursor:pointer">${esc(label(id).replace(/ \(.+\)$/,''))}</span><button data-x="${id}" aria-label="빼기">✕</button></span>`).join('')}</div>`:'';
+  const selrow=sel.length?`<div class="selrow"><span class="mu">차트에 표시 중 (이름=일별 가격, ✕=빼기):</span>${sel.map(id=>`<span class="lg${id===dayId?' cur':''}" style="--c:${colorOf(id)}"><span data-day="${id}" style="cursor:pointer">${esc(label(id).replace(/ \(.+\)$/,''))}</span><button data-x="${id}" aria-label="빼기">✕</button></span>`).join('')}</div>`:'';
   $('pick').innerHTML=`<div class="gtabs">${tabs}</div>${panel}${selrow}`;
+  document.querySelectorAll('.tile').forEach(t=>t.classList.toggle('on',sel.includes(t.dataset.id)));
   document.querySelectorAll('#pick .gtab').forEach(b=>b.onclick=()=>{openGrp=openGrp===b.dataset.g?null:b.dataset.g;renderPick()});
   document.querySelectorAll('#pick .tg').forEach(b=>b.onclick=()=>toggle(b.dataset.id));
   document.querySelectorAll('#pick [data-x]').forEach(b=>b.onclick=()=>toggle(b.dataset.x));
@@ -352,14 +355,16 @@ function draw(){
   if(!ids.length){chart.clear();chart.setOption({title:{text:'위에서 품목을 골라주세요',left:'center',top:'middle',textStyle:{color:'#5d6880',fontSize:16,fontWeight:'normal'}}});$('msg').textContent='';return}
   const stks=ids.filter(i=>i.startsWith('stk:')),pxs=ids.filter(i=>!i.startsWith('stk:'));
   const curs=new Set(stks.map(i=>(S.items[i.slice(4)]||{}).cur));
-  const mixed=(stks.length&&pxs.length)||curs.size>1;
+  const lv=pxs.map(id=>series(id).at(-1)[1]).filter(v=>v>0);const spread=lv.length>1&&Math.max(...lv)/Math.min(...lv)>2.5;
+  const mixed=(stks.length&&pxs.length)||curs.size>1||spread;
   const m=mode==='auto'?(mixed?'idx':'raw'):mode;
   // when prices are selected, show stocks only over the price history so lines are comparable
   const floor=pxs.length?pxs.map(id=>series(id)[0][0]).sort()[0]:null;
   const lastAll=ids.map(id=>series(id).at(-1)[0]).sort().at(-1);
   let ps=periodStart(lastAll);if(floor&&(!ps||ps<floor))ps=floor;
   const msg=[];
-  if(mode==='auto'&&mixed)msg.push('단위·통화가 서로 달라 자동으로 지수화(보이는 구간 첫날=100)해서 그렸습니다. 실제 값은 \'원래 값\'을 누르세요.');
+  if(mode==='auto'&&spread&&!stks.length)msg.push('가격 수준 차이가 커서(예: D램 칩 $40대 vs 낸드 $4~15) 작은 쪽이 바닥에 깔리지 않도록 자동으로 지수화(보이는 구간 첫날=100)했습니다. 실제 값은 \'원래 값\'을 누르세요.');
+  else if(mode==='auto'&&mixed)msg.push('단위·통화가 서로 달라 자동으로 지수화(보이는 구간 첫날=100)해서 그렸습니다. 실제 값은 \'원래 값\'을 누르세요.');
   if(m==='raw'&&stks.length&&pxs.length)msg.push('원래 값: 가격은 왼쪽 축(USD), 주가는 오른쪽 축(현지 통화)입니다.');
   if(floor&&stks.length)msg.push(`주가는 가격 기록이 있는 ${floor} 이후만 표시합니다.`);
   $('msg').textContent=msg.join(' ');
